@@ -7,15 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
-import cn.azhicloud.olserv.ApiException;
 import cn.azhicloud.olserv.model.CreateAccountRequest;
 import cn.azhicloud.olserv.model.CreateAccountResponse;
 import cn.azhicloud.olserv.model.ListAccessKeysResponse;
 import cn.azhicloud.olserv.model.ListAccountsResponse;
 import cn.azhicloud.olserv.model.entity.Account;
-import cn.azhicloud.olserv.model.entity.Shadowbox;
-import cn.azhicloud.olserv.model.outline.AccessKey;
-import cn.azhicloud.olserv.model.outline.ServerInformation;
+import cn.azhicloud.olserv.repository.AccessKeyRepos;
 import cn.azhicloud.olserv.repository.AccountRepos;
 import cn.azhicloud.olserv.repository.ShadowboxRepos;
 import cn.azhicloud.olserv.service.AccountService;
@@ -45,6 +42,8 @@ public class AccountServiceImpl implements AccountService {
     private final OutlineManagerService outlineManagerService;
 
     private final ShadowboxRepos shadowboxRepos;
+
+    private final AccessKeyRepos accessKeyRepos;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -97,30 +96,38 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepos.findById(ids[0]).orElseThrow(() ->
                 new RuntimeException("account not exist"));
 
-        List<Shadowbox> boxes = shadowboxRepos.findAll();
-
         ListAccessKeysResponse response = new ListAccessKeysResponse();
         response.setAccessKeys(new ArrayList<>());
 
-        boxes.forEach(box -> {
-            try {
-                AccessKey accessKey = outlineManagerService.getAccessKey(box.getApiUrl(), account.getUsername());
+//        List<Shadowbox> boxes = shadowboxRepos.findAll();
+//
+//        boxes.forEach(box -> {
+//            try {
+//                AccessKey accessKey = outlineManagerService.getAccessKey(box.getApiUrl(), account.getUsername());
+//
+//                // 如果没有给该账户分配此 access-key, 进入下个循环
+//                if (accessKey == null) {
+//                    return;
+//                }
+//
+//                ServerInformation server = outlineManagerService.getServerInformation(box.getApiUrl());
+//
+//                ListAccessKeysResponse.AccessKey keyVO = new ListAccessKeysResponse.AccessKey();
+//                BeanUtils.copyProperties(accessKey, keyVO);
+//                keyVO.setName(server.getName());
+//
+//                response.getAccessKeys().add(keyVO);
+//            } catch (ApiException e) {
+//                log.error("-----------------", e);
+//            }
+//        });
 
-                // 如果没有给该账户分配此 access-key, 进入下个循环
-                if (accessKey == null) {
-                    return;
-                }
-
-                ServerInformation server = outlineManagerService.getServerInformation(box.getApiUrl());
-
-                ListAccessKeysResponse.AccessKey keyVO = new ListAccessKeysResponse.AccessKey();
-                BeanUtils.copyProperties(accessKey, keyVO);
-                keyVO.setName(server.getName());
-
-                response.getAccessKeys().add(keyVO);
-            } catch (ApiException e) {
-                log.error("-----------------", e);
-            }
+        List<cn.azhicloud.olserv.model.entity.AccessKey> keys = accessKeyRepos.findByName(account.getUsername());
+        keys.forEach(key -> {
+            ListAccessKeysResponse.AccessKey keyVO = new ListAccessKeysResponse.AccessKey();
+            BeanUtils.copyProperties(key, keyVO);
+            keyVO.setName(key.getServerName());
+            response.getAccessKeys().add(keyVO);
         });
 
         return response;

@@ -29,6 +29,7 @@ public class OutlineManagerServiceImpl implements OutlineManagerService {
     public ServerInformation getServerInformation(String apiUrl) {
         String accessUrl = apiUrl + "/server";
 
+        log.info("Call API: {}", accessUrl);
         try {
             return restTemplate.getForObject(accessUrl, ServerInformation.class);
         } catch (RestClientException e) {
@@ -37,16 +38,22 @@ public class OutlineManagerServiceImpl implements OutlineManagerService {
     }
 
     @Override
-    public AccessKey getAccessKey(String apiUrl, String username) {
+    public AccessKeys listAccessKeys(String apiUrl) {
         String accessUrl = apiUrl + "/access-keys";
 
+        log.info("Call API: {}", accessUrl);
         try {
-            return restTemplate.getForObject(accessUrl, AccessKeys.class)
-                    .getAccessKeys().stream().filter(o ->
-                            Objects.equals(username, o.getName())).findAny().orElse(null);
+            return restTemplate.getForObject(accessUrl, AccessKeys.class);
         } catch (RestClientException e) {
             throw new ApiException(String.format("API: %s/access-keys call failed", apiUrl), e);
         }
+    }
+
+    @Override
+    public AccessKey getAccessKey(String apiUrl, String username) {
+        return listAccessKeys(apiUrl)
+                .getAccessKeys().stream().filter(o ->
+                        Objects.equals(username, o.getName())).findAny().orElse(null);
     }
 }
 

@@ -1,6 +1,7 @@
 package cn.azhicloud.olserv.service;
 
 import cn.azhicloud.olserv.model.outline.AccessKey;
+import cn.azhicloud.olserv.model.outline.AccessKeys;
 import cn.azhicloud.olserv.model.outline.ServerInformation;
 
 /**
@@ -17,6 +18,14 @@ public interface OutlineManagerService {
      * @return ServerInformation
      */
     ServerInformation getServerInformation(String apiUrl);
+
+    /**
+     * 列举所有的 access-key
+     *
+     * @param apiUrl 接口访问地址
+     * @return AccessKeys
+     */
+    AccessKeys listAccessKeys(String apiUrl);
 
     /**
      * 获取 access-key
