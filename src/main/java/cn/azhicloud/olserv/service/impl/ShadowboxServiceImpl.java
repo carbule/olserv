@@ -46,6 +46,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         shadowbox.setName(server.getName());
         shadowbox.setApiUrl(request.getApiUrl());
         shadowbox.setCertSha256(request.getCertSha256());
+        shadowbox.setEnabled(true);
 
         shadowboxRepos.save(shadowbox);
     }
