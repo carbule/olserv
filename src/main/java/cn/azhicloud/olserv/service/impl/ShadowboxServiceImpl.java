@@ -61,7 +61,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
             try {
                 ListShadowboxesResponse.Shadowbox boxVO = new ListShadowboxesResponse.Shadowbox();
 
-                ServerInformation server = outlineManagerService.getServerInformation(box.getApiUrl());
+                ServerInformation server = outlineManagerService.getServerInformation(box);
 
                 boxVO.setName(server.getName());
                 boxVO.setApiUrl(box.getApiUrl());

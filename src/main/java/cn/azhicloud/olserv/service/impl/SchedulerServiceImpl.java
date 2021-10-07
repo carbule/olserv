@@ -46,9 +46,9 @@ public class SchedulerServiceImpl implements SchedulerService {
 
         shadowboxes.forEach(box -> {
             try {
-                ServerInformation server = outlineManagerService.getServerInformation(box.getApiUrl());
+                ServerInformation server = outlineManagerService.getServerInformation(box);
 
-                AccessKeys accessKeys = outlineManagerService.listAccessKeys(box.getApiUrl());
+                AccessKeys accessKeys = outlineManagerService.listAccessKeys(box);
 
                 accessKeys.getAccessKeys().forEach(key -> {
                     AccessKey entity = new AccessKey();

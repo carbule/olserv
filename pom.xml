@@ -128,5 +128,11 @@
                 <profile.active>prod</profile.active>
             </properties>
         </profile>
+        <profile>
+            <id>vmserv</id>
+            <properties>
+                <profile.active>vmserv</profile.active>
+            </properties>
+        </profile>
     </profiles>
 </project>
