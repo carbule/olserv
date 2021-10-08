@@ -5,24 +5,28 @@ import javax.persistence.Entity;
 import cn.azhicloud.olserv.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.Where;
 
 /**
  * @author zhouzhifeng
  * @version 1.0
- * @since 2021/10/3 20:37
+ * @since 2021/10/5 21:13
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Where(clause = "enabled = 1")
-public class Shadowbox extends BaseEntity {
+public class AccessKey extends BaseEntity {
+
+    private String serverName;
+
+    private String keyId;
 
     private String name;
 
-    private String apiUrl;
+    private String password;
 
-    private String certSha256;
+    private Integer port;
 
-    private Boolean enabled;
+    private String method;
+
+    private String accessUrl;
 }

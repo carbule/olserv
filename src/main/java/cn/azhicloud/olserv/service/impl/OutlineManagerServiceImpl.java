@@ -1,15 +1,22 @@
 package cn.azhicloud.olserv.service.impl;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Objects;
 
 import cn.azhicloud.olserv.ApiException;
+import cn.azhicloud.olserv.model.entity.ApiError;
+import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.model.outline.AccessKeys;
 import cn.azhicloud.olserv.model.outline.ServerInformation;
+import cn.azhicloud.olserv.repository.ApiErrorRepos;
 import cn.azhicloud.olserv.service.OutlineManagerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,10 +32,13 @@ public class OutlineManagerServiceImpl implements OutlineManagerService {
 
     private final RestTemplate restTemplate;
 
+    private final ApiErrorRepos apiErrorRepos;
+
     @Override
     public ServerInformation getServerInformation(String apiUrl) {
         String accessUrl = apiUrl + "/server";
 
+        log.info("Call API: {}", accessUrl);
         try {
             return restTemplate.getForObject(accessUrl, ServerInformation.class);
         } catch (RestClientException e) {
@@ -37,16 +47,58 @@ public class OutlineManagerServiceImpl implements OutlineManagerService {
     }
 
     @Override
-    public AccessKey getAccessKey(String apiUrl, String username) {
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public ServerInformation getServerInformation(Shadowbox box) {
+        try {
+            return getServerInformation(box.getApiUrl());
+        } catch (ApiException e) {
+            throw saveApiFailedReason(box, e);
+        }
+    }
+
+    @Override
+    public AccessKeys listAccessKeys(String apiUrl) {
         String accessUrl = apiUrl + "/access-keys";
 
+        log.info("Call API: {}", accessUrl);
         try {
-            return restTemplate.getForObject(accessUrl, AccessKeys.class)
-                    .getAccessKeys().stream().filter(o ->
-                            Objects.equals(username, o.getName())).findAny().orElse(null);
+            return restTemplate.getForObject(accessUrl, AccessKeys.class);
         } catch (RestClientException e) {
             throw new ApiException(String.format("API: %s/access-keys call failed", apiUrl), e);
         }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public AccessKeys listAccessKeys(Shadowbox box) {
+        try {
+            return listAccessKeys(box.getApiUrl());
+        } catch (ApiException e) {
+            throw saveApiFailedReason(box, e);
+        }
+    }
+
+    @Override
+    public AccessKey getAccessKey(String apiUrl, String username) {
+        return listAccessKeys(apiUrl)
+                .getAccessKeys().stream().filter(o ->
+                        Objects.equals(username, o.getName())).findAny().orElse(null);
+    }
+
+    /**
+     * 异常需要被记录
+     */
+    private ApiException saveApiFailedReason(Shadowbox box, ApiException e) {
+        ApiError err = new ApiError();
+        err.setApiName(box.getName());
+        err.setApiUrl(box.getApiUrl());
+
+        StringWriter writer = new StringWriter();
+        e.printStackTrace(new PrintWriter(writer));
+        err.setReason(writer.toString());
+
+        apiErrorRepos.save(err);
+        return e;
     }
 }
 

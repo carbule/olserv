@@ -46,6 +46,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         shadowbox.setName(server.getName());
         shadowbox.setApiUrl(request.getApiUrl());
         shadowbox.setCertSha256(request.getCertSha256());
+        shadowbox.setEnabled(true);
 
         shadowboxRepos.save(shadowbox);
     }
@@ -61,7 +62,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
             try {
                 ListShadowboxesResponse.Shadowbox boxVO = new ListShadowboxesResponse.Shadowbox();
 
-                ServerInformation server = outlineManagerService.getServerInformation(box.getApiUrl());
+                ServerInformation server = outlineManagerService.getServerInformation(box);
 
                 boxVO.setName(server.getName());
                 boxVO.setApiUrl(box.getApiUrl());
