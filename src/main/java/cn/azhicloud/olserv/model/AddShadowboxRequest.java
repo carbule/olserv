@@ -5,6 +5,7 @@ import javax.validation.constraints.NotBlank;
 import cn.azhicloud.olserv.BaseRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author zhouzhifeng
