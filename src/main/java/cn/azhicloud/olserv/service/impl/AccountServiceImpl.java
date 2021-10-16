@@ -13,10 +13,12 @@ import cn.azhicloud.olserv.model.ListAccessKeysResponse;
 import cn.azhicloud.olserv.model.ListAccountsResponse;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.repository.AccessKeyRepos;
+import cn.azhicloud.olserv.repository.AccessLogRepos;
 import cn.azhicloud.olserv.repository.AccountRepos;
 import cn.azhicloud.olserv.repository.ShadowboxRepos;
 import cn.azhicloud.olserv.service.AccountService;
 import cn.azhicloud.olserv.service.OutlineManagerService;
+import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hashids.Hashids;
@@ -44,6 +46,8 @@ public class AccountServiceImpl implements AccountService {
     private final ShadowboxRepos shadowboxRepos;
 
     private final AccessKeyRepos accessKeyRepos;
+
+    private final AccessLogRepos accessLogRepos;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -130,6 +134,8 @@ public class AccountServiceImpl implements AccountService {
             response.getAccessKeys().add(keyVO);
         });
 
+        // 创建访问日志
+        accessLogRepos.newAccessLog(account.getUsername(), JSON.toJSONString(response));
         return response;
     }
 
