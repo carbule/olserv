@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import cn.azhicloud.olserv.ApiException;
 import cn.azhicloud.olserv.model.AddShadowboxRequest;
+import cn.azhicloud.olserv.model.AddShadowboxResponse;
 import cn.azhicloud.olserv.model.ListShadowboxesResponse;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.ServerInformation;
@@ -33,7 +34,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void addShadowbox(AddShadowboxRequest request) {
+    public AddShadowboxResponse addShadowbox(AddShadowboxRequest request) {
         Optional<Shadowbox> optional = shadowboxRepos.findByApiUrl(request.getApiUrl());
         if (optional.isPresent()) {
             throw new RuntimeException("shadowbox.existed");
@@ -49,6 +50,10 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         shadowbox.setEnabled(true);
 
         shadowboxRepos.save(shadowbox);
+
+        AddShadowboxResponse response = new AddShadowboxResponse();
+        response.setServerName(server.getName());
+        return response;
     }
 
     @Override

@@ -25,8 +25,7 @@ public class ShadowboxController {
 
     @PostMapping("/add")
     public BaseResponse addShadowbox(@RequestBody @Validated AddShadowboxRequest request) {
-        shadowboxService.addShadowbox(request);
-        return new BaseResponse();
+        return shadowboxService.addShadowbox(request);
     }
 
     @GetMapping("/add")
@@ -34,8 +33,7 @@ public class ShadowboxController {
         AddShadowboxRequest request = new AddShadowboxRequest();
         request.setApiUrl(apiUrl);
 
-        shadowboxService.addShadowbox(request);
-        return new BaseResponse();
+        return shadowboxService.addShadowbox(request);
     }
 
     @GetMapping("/list")

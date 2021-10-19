@@ -103,29 +103,6 @@ public class AccountServiceImpl implements AccountService {
         ListAccessKeysResponse response = new ListAccessKeysResponse();
         response.setAccessKeys(new ArrayList<>());
 
-//        List<Shadowbox> boxes = shadowboxRepos.findAll();
-//
-//        boxes.forEach(box -> {
-//            try {
-//                AccessKey accessKey = outlineManagerService.getAccessKey(box.getApiUrl(), account.getUsername());
-//
-//                // 如果没有给该账户分配此 access-key, 进入下个循环
-//                if (accessKey == null) {
-//                    return;
-//                }
-//
-//                ServerInformation server = outlineManagerService.getServerInformation(box.getApiUrl());
-//
-//                ListAccessKeysResponse.AccessKey keyVO = new ListAccessKeysResponse.AccessKey();
-//                BeanUtils.copyProperties(accessKey, keyVO);
-//                keyVO.setName(server.getName());
-//
-//                response.getAccessKeys().add(keyVO);
-//            } catch (ApiException e) {
-//                log.error("-----------------", e);
-//            }
-//        });
-
         List<cn.azhicloud.olserv.model.entity.AccessKey> keys = accessKeyRepos.findByName(account.getUsername());
         keys.forEach(key -> {
             ListAccessKeysResponse.AccessKey keyVO = new ListAccessKeysResponse.AccessKey();
