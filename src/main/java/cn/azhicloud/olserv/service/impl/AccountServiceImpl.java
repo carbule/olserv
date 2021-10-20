@@ -26,6 +26,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.StringUtils;
 
 /**
  * @author zhouzhifeng
@@ -123,7 +124,13 @@ public class AccountServiceImpl implements AccountService {
         StringJoiner joiner = new StringJoiner(System.lineSeparator());
         response.getAccessKeys().forEach(k -> {
             try {
-                String encoding = k.getAccessUrl() + "#" + URLEncoder.encode(k.getName(), "UTF-8");
+                String accessUrl = k.getAccessUrl();
+
+                if (StringUtils.hasText(k.getRedirectAddress()) && k.getRedirectPort() != null) {
+                    accessUrl = accessUrl.substring(0, accessUrl.lastIndexOf("@") + 1) + k.getRedirectAddress() + ":" + k.getRedirectPort();
+                }
+
+                String encoding = accessUrl + "#" + URLEncoder.encode(k.getName(), "UTF-8");
 
                 joiner.add(encoding);
             } catch (UnsupportedEncodingException e) {

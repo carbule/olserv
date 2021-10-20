@@ -28,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class SchedulerServiceImpl implements SchedulerService {
 
+    private static final String OUTLINE_SUFFIX = "/?outline=1";
+
     private final AccessKeyRepos accessKeyRepos;
 
     private final OutlineManagerService outlineManagerService;
@@ -58,7 +60,10 @@ public class SchedulerServiceImpl implements SchedulerService {
                     entity.setPassword(key.getPassword());
                     entity.setPort(key.getPort());
                     entity.setMethod(key.getMethod());
-                    entity.setAccessUrl(key.getAccessUrl());
+                    entity.setAccessUrl(key.getAccessUrl().replace(OUTLINE_SUFFIX, ""));
+                    // 用于端口转发
+                    entity.setRedirectAddress(box.getRedirectAddress());
+                    entity.setRedirectPort(box.getRedirectPort());
 
                     accessKeyRepos.save(entity);
                 });

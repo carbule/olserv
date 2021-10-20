@@ -29,4 +29,8 @@ public class AccessKey extends BaseEntity {
     private String method;
 
     private String accessUrl;
+
+    private String redirectAddress;
+
+    private Integer redirectPort;
 }

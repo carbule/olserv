@@ -48,6 +48,8 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         shadowbox.setApiUrl(request.getApiUrl());
         shadowbox.setCertSha256(request.getCertSha256());
         shadowbox.setEnabled(true);
+        shadowbox.setRedirectAddress(request.getRedirectAddress());
+        shadowbox.setRedirectPort(request.getRedirectPort());
 
         shadowboxRepos.save(shadowbox);
 
