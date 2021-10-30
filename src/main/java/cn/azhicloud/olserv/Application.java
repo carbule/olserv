@@ -12,12 +12,12 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.hashids.Hashids;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -26,7 +26,9 @@ import org.springframework.web.client.RestTemplate;
 /**
  * @author init
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "cn.azhicloud")
+@EnableJpaRepositories("cn.azhicloud")
+@EntityScan("cn.azhicloud")
 @EnableJpaAuditing
 @EnableScheduling
 public class Application {
@@ -35,11 +37,7 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-    @Bean
-    public Hashids hashids(@Value("${hash-ids.salt}") String salt,
-                           @Value("${hash-ids.length}") int length) {
-        return new Hashids(salt, length);
-    }
+
 
 
     @Bean

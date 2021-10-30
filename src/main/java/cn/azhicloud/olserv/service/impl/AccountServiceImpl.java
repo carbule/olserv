@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
+import cn.azhicloud.idgen.service.IdGenService;
 import cn.azhicloud.olserv.model.CreateAccountRequest;
 import cn.azhicloud.olserv.model.CreateAccountResponse;
 import cn.azhicloud.olserv.model.ListAccessKeysResponse;
@@ -50,6 +51,8 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccessLogRepos accessLogRepos;
 
+    private final IdGenService idGenService;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CreateAccountResponse createNew(CreateAccountRequest request) {
@@ -59,6 +62,7 @@ public class AccountServiceImpl implements AccountService {
 
         request.getNames().forEach(name -> {
             Account data = new Account();
+            data.setId(idGenService.genNewId());
             data.setUsername(name);
             Account saved = accountRepos.save(data);
 
