@@ -62,7 +62,6 @@ public class AccountServiceImpl implements AccountService {
 
         request.getNames().forEach(name -> {
             Account data = new Account();
-            data.setId(idGenService.genNewId());
             data.setUsername(name);
             Account saved = accountRepos.save(data);
 
