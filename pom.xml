@@ -128,5 +128,11 @@
                 <profile.active>prod</profile.active>
             </properties>
         </profile>
+        <profile>
+            <id>oraclekr</id>
+            <properties>
+                <profile.active>oraclekr</profile.active>
+            </properties>
+        </profile>
     </profiles>
 </project>
