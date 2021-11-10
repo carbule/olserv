@@ -25,4 +25,8 @@ public class Shadowbox extends BaseEntity {
     private String certSha256;
 
     private Boolean enabled;
+
+    private String redirectAddress;
+
+    private Integer redirectPort;
 }

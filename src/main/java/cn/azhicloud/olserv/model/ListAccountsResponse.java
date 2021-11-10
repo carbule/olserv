@@ -31,7 +31,7 @@ public class ListAccountsResponse extends BaseResponse {
 
         private String username;
 
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
         private Date created;
     }
 }

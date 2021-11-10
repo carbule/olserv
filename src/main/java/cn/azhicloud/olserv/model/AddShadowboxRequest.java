@@ -5,6 +5,7 @@ import javax.validation.constraints.NotBlank;
 import cn.azhicloud.olserv.BaseRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.Range;
 
 /**
  * @author zhouzhifeng
@@ -21,4 +22,9 @@ public class AddShadowboxRequest extends BaseRequest {
     private String apiUrl;
 
     private String certSha256;
+
+    private String redirectAddress;
+
+    @Range(min = 1, max = 65535, message = "redirectPort.range(1-65535)")
+    private Integer redirectPort;
 }

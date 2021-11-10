@@ -129,9 +129,9 @@
             </properties>
         </profile>
         <profile>
-            <id>vmserv</id>
+            <id>oraclekr</id>
             <properties>
-                <profile.active>vmserv</profile.active>
+                <profile.active>oraclekr</profile.active>
             </properties>
         </profile>
     </profiles>

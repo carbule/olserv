@@ -1,8 +1,11 @@
 package cn.azhicloud.olserv;
 
 import java.util.Date;
-import javax.persistence.*;
+import javax.persistence.EntityListeners;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 
+import cn.azhicloud.idgen.util.IdGenUtils;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -18,9 +21,16 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @CreatedDate
     private Date created;
+
+    public BaseEntity() {
+        this.id = IdGenUtils.genId();
+    }
+
+    private void setId(Long id) {
+        this.id = id;
+    }
 }

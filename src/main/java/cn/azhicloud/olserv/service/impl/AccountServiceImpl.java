@@ -7,16 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
+import cn.azhicloud.idgen.service.IdGenService;
 import cn.azhicloud.olserv.model.CreateAccountRequest;
 import cn.azhicloud.olserv.model.CreateAccountResponse;
 import cn.azhicloud.olserv.model.ListAccessKeysResponse;
 import cn.azhicloud.olserv.model.ListAccountsResponse;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.repository.AccessKeyRepos;
+import cn.azhicloud.olserv.repository.AccessLogRepos;
 import cn.azhicloud.olserv.repository.AccountRepos;
 import cn.azhicloud.olserv.repository.ShadowboxRepos;
 import cn.azhicloud.olserv.service.AccountService;
 import cn.azhicloud.olserv.service.OutlineManagerService;
+import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hashids.Hashids;
@@ -24,6 +27,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.StringUtils;
 
 /**
  * @author zhouzhifeng
@@ -44,6 +48,10 @@ public class AccountServiceImpl implements AccountService {
     private final ShadowboxRepos shadowboxRepos;
 
     private final AccessKeyRepos accessKeyRepos;
+
+    private final AccessLogRepos accessLogRepos;
+
+    private final IdGenService idGenService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -99,29 +107,6 @@ public class AccountServiceImpl implements AccountService {
         ListAccessKeysResponse response = new ListAccessKeysResponse();
         response.setAccessKeys(new ArrayList<>());
 
-//        List<Shadowbox> boxes = shadowboxRepos.findAll();
-//
-//        boxes.forEach(box -> {
-//            try {
-//                AccessKey accessKey = outlineManagerService.getAccessKey(box.getApiUrl(), account.getUsername());
-//
-//                // 如果没有给该账户分配此 access-key, 进入下个循环
-//                if (accessKey == null) {
-//                    return;
-//                }
-//
-//                ServerInformation server = outlineManagerService.getServerInformation(box.getApiUrl());
-//
-//                ListAccessKeysResponse.AccessKey keyVO = new ListAccessKeysResponse.AccessKey();
-//                BeanUtils.copyProperties(accessKey, keyVO);
-//                keyVO.setName(server.getName());
-//
-//                response.getAccessKeys().add(keyVO);
-//            } catch (ApiException e) {
-//                log.error("-----------------", e);
-//            }
-//        });
-
         List<cn.azhicloud.olserv.model.entity.AccessKey> keys = accessKeyRepos.findByName(account.getUsername());
         keys.forEach(key -> {
             ListAccessKeysResponse.AccessKey keyVO = new ListAccessKeysResponse.AccessKey();
@@ -130,6 +115,8 @@ public class AccountServiceImpl implements AccountService {
             response.getAccessKeys().add(keyVO);
         });
 
+        // 创建访问日志
+        accessLogRepos.newAccessLog(account.getUsername(), JSON.toJSONString(response));
         return response;
     }
 
@@ -140,7 +127,13 @@ public class AccountServiceImpl implements AccountService {
         StringJoiner joiner = new StringJoiner(System.lineSeparator());
         response.getAccessKeys().forEach(k -> {
             try {
-                String encoding = k.getAccessUrl() + "#" + URLEncoder.encode(k.getName(), "UTF-8");
+                String accessUrl = k.getAccessUrl();
+
+                if (StringUtils.hasText(k.getRedirectAddress()) && k.getRedirectPort() != null) {
+                    accessUrl = accessUrl.substring(0, accessUrl.lastIndexOf("@") + 1) + k.getRedirectAddress() + ":" + k.getRedirectPort();
+                }
+
+                String encoding = accessUrl + "#" + URLEncoder.encode(k.getName(), "UTF-8");
 
                 joiner.add(encoding);
             } catch (UnsupportedEncodingException e) {
