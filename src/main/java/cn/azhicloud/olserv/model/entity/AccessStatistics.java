@@ -4,6 +4,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 import cn.azhicloud.olserv.BaseEntity;
@@ -20,6 +21,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 public class AccessStatistics extends BaseEntity {
 
+    @Column(unique = true)
     private String username;
 
     private Integer count;

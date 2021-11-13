@@ -9,4 +9,6 @@ import cn.azhicloud.olserv.model.entity.AccessStatistics;
  * @since 2021/11/13 14:14
  */
 public interface AccessStatisticsRepos extends BaseRepository<AccessStatistics> {
+
+    AccessStatistics findByUsername(String user);
 }

@@ -103,7 +103,12 @@ public class SchedulerServiceImpl implements SchedulerService {
             AccessLog lastLog = logs.stream().max(Comparator.
                     comparing(AccessLog::getCreated)).get();
 
-            AccessStatistics statistics = new AccessStatistics();
+            AccessStatistics statistics = accessStatisticsRepos.findByUsername(user);
+
+            if (statistics == null) {
+                statistics = new AccessStatistics();
+            }
+
             statistics.setUsername(user);
             statistics.setCount(logs.size());
             statistics.setLastAccess(lastLog.getCreated());
