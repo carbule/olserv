@@ -11,4 +11,9 @@ public interface SchedulerService {
      * 持久化 access-keys
      */
     void persistenceAccessKeys();
+
+    /**
+     * 访问统计
+     */
+    void accessStatistics();
 }
