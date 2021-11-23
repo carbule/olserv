@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.Objects;
 
 import cn.azhicloud.olserv.ApiException;
+import cn.azhicloud.olserv.BaseEntity;
 import cn.azhicloud.olserv.model.entity.ApiError;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
@@ -89,7 +90,7 @@ public class OutlineManagerServiceImpl implements OutlineManagerService {
      * 异常需要被记录
      */
     private ApiException saveApiFailedReason(Shadowbox box, ApiException e) {
-        ApiError err = new ApiError();
+        ApiError err = BaseEntity.instance(ApiError.class);
         err.setApiName(box.getName());
         err.setApiUrl(box.getApiUrl());
 

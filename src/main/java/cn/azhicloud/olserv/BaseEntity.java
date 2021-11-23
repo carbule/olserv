@@ -6,6 +6,9 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 import cn.azhicloud.idgen.util.IdGenUtils;
+import cn.azhicloud.sequence.Sequences;
+import cn.azhicloud.sequence.entity.Sequence;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -26,11 +29,15 @@ public class BaseEntity {
     @CreatedDate
     private Date created;
 
-    public BaseEntity() {
-        this.id = IdGenUtils.genId();
-    }
+    public static <T extends BaseEntity> T instance(Class<T> clazz) {
+        T instance;
+        try {
+            instance = clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
 
-    private void setId(Long id) {
-        this.id = id;
+        instance.setId(Sequences.next());
+        return instance;
     }
 }

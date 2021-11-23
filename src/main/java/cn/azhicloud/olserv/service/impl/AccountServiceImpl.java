@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import cn.azhicloud.idgen.service.IdGenService;
+import cn.azhicloud.olserv.BaseEntity;
 import cn.azhicloud.olserv.model.CreateAccountRequest;
 import cn.azhicloud.olserv.model.CreateAccountResponse;
 import cn.azhicloud.olserv.model.ListAccessKeysResponse;
@@ -61,7 +62,7 @@ public class AccountServiceImpl implements AccountService {
         response.setAccounts(new ArrayList<>());
 
         request.getNames().forEach(name -> {
-            Account data = new Account();
+            Account data = BaseEntity.instance(Account.class);
             data.setUsername(name);
             Account saved = accountRepos.save(data);
 

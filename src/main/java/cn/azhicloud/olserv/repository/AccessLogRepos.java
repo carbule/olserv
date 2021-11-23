@@ -1,7 +1,9 @@
 package cn.azhicloud.olserv.repository;
 
+import cn.azhicloud.olserv.BaseEntity;
 import cn.azhicloud.olserv.BaseRepository;
 import cn.azhicloud.olserv.model.entity.AccessLog;
+import cn.azhicloud.sequence.Sequences;
 
 /**
  * @author zhouzhifeng
@@ -17,7 +19,8 @@ public interface AccessLogRepos extends BaseRepository<AccessLog> {
      * @param returnContent 返回内容
      */
     default void newAccessLog(String username, String returnContent) {
-        AccessLog log = new AccessLog();
+        AccessLog log = BaseEntity.instance(AccessLog.class);
+        log.setId(Sequences.next());
         log.setUsername(username);
         log.setReturnContent(returnContent);
 

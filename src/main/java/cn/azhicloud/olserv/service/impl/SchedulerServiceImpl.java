@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import cn.azhicloud.olserv.ApiException;
+import cn.azhicloud.olserv.BaseEntity;
 import cn.azhicloud.olserv.model.entity.AccessKey;
 import cn.azhicloud.olserv.model.entity.AccessLog;
 import cn.azhicloud.olserv.model.entity.AccessStatistics;
@@ -64,7 +65,7 @@ public class SchedulerServiceImpl implements SchedulerService {
                 AccessKeys accessKeys = outlineManagerService.listAccessKeys(box);
 
                 accessKeys.getAccessKeys().forEach(key -> {
-                    AccessKey entity = new AccessKey();
+                    AccessKey entity = BaseEntity.instance(AccessKey.class);
                     entity.setServerName(server.getName());
                     entity.setKeyId(key.getId());
                     entity.setName(key.getName());
@@ -106,7 +107,7 @@ public class SchedulerServiceImpl implements SchedulerService {
             AccessStatistics statistics = accessStatisticsRepos.findByUsername(user);
 
             if (statistics == null) {
-                statistics = new AccessStatistics();
+                statistics = BaseEntity.instance(AccessStatistics.class);
             }
 
             statistics.setUsername(user);

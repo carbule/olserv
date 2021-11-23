@@ -1,4 +1,4 @@
-package cn.azhicloud.olserv;
+package cn.azhicloud;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
@@ -26,9 +26,9 @@ import org.springframework.web.client.RestTemplate;
 /**
  * @author init
  */
-@SpringBootApplication(scanBasePackages = "cn.azhicloud")
-@EnableJpaRepositories("cn.azhicloud")
-@EntityScan("cn.azhicloud")
+@SpringBootApplication/*(scanBasePackages = "cn.azhicloud")*/
+//@EnableJpaRepositories("cn.azhicloud")
+//@EntityScan("cn.azhicloud")
 @EnableJpaAuditing
 @EnableScheduling
 public class Application {
@@ -36,8 +36,6 @@ public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
-
-
 
 
     @Bean

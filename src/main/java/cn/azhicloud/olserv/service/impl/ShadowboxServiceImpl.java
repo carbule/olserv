@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import cn.azhicloud.olserv.ApiException;
+import cn.azhicloud.olserv.BaseEntity;
 import cn.azhicloud.olserv.model.AddShadowboxRequest;
 import cn.azhicloud.olserv.model.AddShadowboxResponse;
 import cn.azhicloud.olserv.model.ListShadowboxesResponse;
@@ -43,7 +44,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         // 添加 outline 服务器时获取服务器名称 用于校验 apiUrl 是否有效
         ServerInformation server = outlineManagerService.getServerInformation(request.getApiUrl());
 
-        Shadowbox shadowbox = new Shadowbox();
+        Shadowbox shadowbox = BaseEntity.instance(Shadowbox.class);
         shadowbox.setName(server.getName());
         shadowbox.setApiUrl(request.getApiUrl());
         shadowbox.setCertSha256(request.getCertSha256());
