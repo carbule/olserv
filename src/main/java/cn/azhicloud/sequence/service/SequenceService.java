@@ -13,4 +13,11 @@ public interface SequenceService {
      * @return next long
      */
     Long nextSync();
+
+    /**
+     * 获取新序列
+     *
+     * @return next long
+     */
+    Long next();
 }

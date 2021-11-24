@@ -39,6 +39,14 @@ public class SequenceServiceImpl implements SequenceService, CommandLineRunner {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class,
+            propagation = Propagation.REQUIRES_NEW)
+    public Long next() {
+        sequenceMapper.update();
+        return sequenceMapper.select();
+    }
+
+    @Override
     public void run(String... args) throws Exception {
         // 初始序列为 10_0000
         sequenceRepository.save(new Sequence(initSequence));

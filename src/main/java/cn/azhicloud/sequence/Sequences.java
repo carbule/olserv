@@ -20,20 +20,20 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class Sequences {
 
-    private static final Queue<Long> QUEUE = new LinkedBlockingQueue<>(100);
+    private static final Queue<Long> QUEUE = new LinkedBlockingQueue<>(1000);
 
     private static SequenceService sequenceService;
 
     public static Long next() {
         return Optional.ofNullable(QUEUE.poll()).orElseGet(() -> {
-            fillQueue(sequenceService.nextSync());
+            fillQueue(sequenceService.next());
             return QUEUE.poll();
         });
     }
 
     private static void fillQueue(Long next) {
         while (QUEUE.offer(next)) {
-            fillQueue(sequenceService.nextSync());
+            fillQueue(sequenceService.next());
         }
     }
 
