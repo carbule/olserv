@@ -1,0 +1,55 @@
+#### master ####
+spring:
+  profiles:
+    active: @profile.active@
+  jpa:
+    open-in-view: false
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  mvc:
+    servlet:
+      load-on-startup: 1
+server:
+  servlet:
+    encoding:
+      force: true
+    context-path: /olserv
+hash-ids:
+  length: 10
+  salt: ee1d5305-57e6-4698-b6d7-ae77165bad07
+# 序列初始数字
+sequence:
+  init: 100000
+
+
+---
+#### dev ####
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/olserv_dev?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+
+
+---
+#### prod ####
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    username: 3edb7c5f
+    password: 28783ce2
+    url: jdbc:mysql://production-database/e1f1dace?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+logging:
+  file:
+    name: /var/log/olserv.log
