@@ -19,7 +19,7 @@ hash-ids:
   salt: ee1d5305-57e6-4698-b6d7-ae77165bad07
 # 序列初始数字
 sequence:
-  init: 100000
+  init: 10000000
 
 
 ---
