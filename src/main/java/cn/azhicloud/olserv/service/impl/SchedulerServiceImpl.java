@@ -3,6 +3,7 @@ package cn.azhicloud.olserv.service.impl;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -62,6 +63,11 @@ public class SchedulerServiceImpl implements SchedulerService {
             try {
                 ServerInformation server = outlineManagerService.getServerInformation(box);
 
+                // if server change name
+                if (!Objects.equals(server.getName(), box.getName())) {
+                    box.setName(server.getName());
+                }
+
                 AccessKeys accessKeys = outlineManagerService.listAccessKeys(box);
 
                 accessKeys.getAccessKeys().forEach(key -> {
@@ -95,14 +101,12 @@ public class SchedulerServiceImpl implements SchedulerService {
 
         List<AccessLog> accesses = accessLogRepos.findAll();
 
-        Map<String, List<AccessLog>> accessesGrpByUser = accesses.stream().
-                collect(Collectors.groupingBy(AccessLog::getUsername));
+        Map<String, List<AccessLog>> accessesGrpByUser = accesses.stream().collect(Collectors.groupingBy(AccessLog::getUsername));
 
         accessesGrpByUser.forEach((user, logs) -> {
 
             // 获取最新的 access log
-            AccessLog lastLog = logs.stream().max(Comparator.
-                    comparing(AccessLog::getCreated)).get();
+            AccessLog lastLog = logs.stream().max(Comparator.comparing(AccessLog::getCreated)).get();
 
             AccessStatistics statistics = accessStatisticsRepos.findByUsername(user);
 
@@ -116,8 +120,7 @@ public class SchedulerServiceImpl implements SchedulerService {
 
             accessStatisticsRepos.save(statistics);
 
-            log.info("user: [{}], accessCount: [{}], lastAccess: [{}]",
-                    statistics.getUsername(), statistics.getCount(), statistics.getLastAccessStr());
+            log.info("user: [{}], accessCount: [{}], lastAccess: [{}]", statistics.getUsername(), statistics.getCount(), statistics.getLastAccessStr());
         });
 
         log.info("----- accessStatistics finish ----- ");
