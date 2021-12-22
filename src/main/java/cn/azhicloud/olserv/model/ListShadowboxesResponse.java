@@ -28,5 +28,7 @@ public class ListShadowboxesResponse extends BaseResponse {
         private String name;
 
         private String apiUrl;
+
+        private String certSha256;
     }
 }

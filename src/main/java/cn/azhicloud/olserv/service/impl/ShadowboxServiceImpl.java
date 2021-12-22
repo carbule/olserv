@@ -74,6 +74,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
 
                 boxVO.setName(server.getName());
                 boxVO.setApiUrl(box.getApiUrl());
+                boxVO.setCertSha256(box.getCertSha256());
 
                 response.getShadowboxes().add(boxVO);
             } catch (ApiException e) {
