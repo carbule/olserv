@@ -47,9 +47,9 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-    username: 3edb7c5f
-    password: 28783ce2
-    url: jdbc:mysql://production-database/e1f1dace?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: olserv
+    password: pwd@123
+    url: jdbc:mysql://production-database/olserv?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
 logging:
   file:
     name: /var/log/olserv.log

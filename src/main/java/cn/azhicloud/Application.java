@@ -29,6 +29,8 @@ import org.springframework.web.client.RestTemplate;
 @EnableScheduling
 public class Application {
 
+    private static final int TIMEOUT_MILLISECONDS = 5 * 1000;
+
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
@@ -61,6 +63,9 @@ public class Application {
                 new HttpComponentsClientHttpRequestFactory();
 
         requestFactory.setHttpClient(httpClient);
+        requestFactory.setConnectionRequestTimeout(TIMEOUT_MILLISECONDS);
+        requestFactory.setConnectTimeout(TIMEOUT_MILLISECONDS);
+        requestFactory.setReadTimeout(TIMEOUT_MILLISECONDS);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
         //处理中文乱码
         restTemplate.getMessageConverters().set(1, new StringHttpMessageConverter(StandardCharsets.UTF_8));
