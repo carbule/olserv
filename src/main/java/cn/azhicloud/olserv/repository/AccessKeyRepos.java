@@ -18,5 +18,5 @@ public interface AccessKeyRepos extends BaseRepository<AccessKey> {
      * @param name 账号名
      * @return List
      */
-    List<AccessKey> findByName(String name);
+    List<AccessKey> findByNameOrderByServerName(String name);
 }

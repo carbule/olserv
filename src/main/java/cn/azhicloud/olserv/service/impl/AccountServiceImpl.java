@@ -108,7 +108,7 @@ public class AccountServiceImpl implements AccountService {
         ListAccessKeysResponse response = new ListAccessKeysResponse();
         response.setAccessKeys(new ArrayList<>());
 
-        List<cn.azhicloud.olserv.model.entity.AccessKey> keys = accessKeyRepos.findByName(account.getUsername());
+        List<cn.azhicloud.olserv.model.entity.AccessKey> keys = accessKeyRepos.findByNameOrderByServerName(account.getUsername());
         keys.forEach(key -> {
             ListAccessKeysResponse.AccessKey keyVO = new ListAccessKeysResponse.AccessKey();
             BeanUtils.copyProperties(key, keyVO);
