@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
-import cn.azhicloud.idgen.service.IdGenService;
 import cn.azhicloud.olserv.BaseEntity;
 import cn.azhicloud.olserv.model.CreateAccountRequest;
 import cn.azhicloud.olserv.model.CreateAccountResponse;
@@ -51,8 +50,6 @@ public class AccountServiceImpl implements AccountService {
     private final AccessKeyRepos accessKeyRepos;
 
     private final AccessLogRepos accessLogRepos;
-
-    private final IdGenService idGenService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
