@@ -53,7 +53,7 @@ public class SchedulerServiceImpl implements SchedulerService {
     @Transactional(rollbackFor = Exception.class)
     @Scheduled(timeUnit = TimeUnit.MINUTES, fixedRate = 1)
     public void persistenceAccessKeys() {
-        log.info("----- persistenceAccessKeys start ----- ");
+        log.info(">>> Start do persistent access_key.");
 
         accessKeyRepos.deleteAll();
 
@@ -86,18 +86,18 @@ public class SchedulerServiceImpl implements SchedulerService {
                     accessKeyRepos.save(entity);
                 });
             } catch (ApiException e) {
-                log.error("------------------", e);
+                log.error(">>> Do persistent access_key failed, exception message: {}", e.getMessage());
             }
         });
 
-        log.info("----- persistenceAccessKeys finish ----- ");
+        log.info(">>> End do persistent access_key.");
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Scheduled(timeUnit = TimeUnit.MINUTES, fixedRate = 5)
     public void accessStatistics() {
-        log.info("----- accessStatistics start ----- ");
+        log.info(">>> Start do statistics for access_log.");
 
         List<AccessLog> accesses = accessLogRepos.findAll();
 
@@ -123,6 +123,6 @@ public class SchedulerServiceImpl implements SchedulerService {
             log.info("user: [{}], accessCount: [{}], lastAccess: [{}]", statistics.getUsername(), statistics.getCount(), statistics.getLastAccessStr());
         });
 
-        log.info("----- accessStatistics finish ----- ");
+        log.info(">>> End do statistics for access_log.");
     }
 }
