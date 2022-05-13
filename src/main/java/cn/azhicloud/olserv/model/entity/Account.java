@@ -1,5 +1,6 @@
 package cn.azhicloud.olserv.model.entity;
 
+import java.util.Date;
 import javax.persistence.Entity;
 
 import cn.azhicloud.olserv.BaseEntity;
@@ -17,4 +18,6 @@ import lombok.EqualsAndHashCode;
 public class Account extends BaseEntity {
 
     private String username;
+
+    private Date lastAccess;
 }

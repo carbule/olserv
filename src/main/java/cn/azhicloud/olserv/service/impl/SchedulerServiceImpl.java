@@ -1,23 +1,16 @@
 package cn.azhicloud.olserv.service.impl;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import cn.azhicloud.olserv.ApiException;
 import cn.azhicloud.olserv.BaseEntity;
 import cn.azhicloud.olserv.model.entity.AccessKey;
-import cn.azhicloud.olserv.model.entity.AccessLog;
-import cn.azhicloud.olserv.model.entity.AccessStatistics;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKeys;
 import cn.azhicloud.olserv.model.outline.ServerInformation;
 import cn.azhicloud.olserv.repository.AccessKeyRepos;
-import cn.azhicloud.olserv.repository.AccessLogRepos;
-import cn.azhicloud.olserv.repository.AccessStatisticsRepos;
 import cn.azhicloud.olserv.repository.ShadowboxRepos;
 import cn.azhicloud.olserv.service.OutlineManagerService;
 import cn.azhicloud.olserv.service.SchedulerService;
@@ -44,10 +37,6 @@ public class SchedulerServiceImpl implements SchedulerService {
     private final OutlineManagerService outlineManagerService;
 
     private final ShadowboxRepos shadowboxRepos;
-
-    private final AccessLogRepos accessLogRepos;
-
-    private final AccessStatisticsRepos accessStatisticsRepos;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -91,38 +80,5 @@ public class SchedulerServiceImpl implements SchedulerService {
         });
 
         log.info(">>> End do persistent access_key.");
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    @Scheduled(timeUnit = TimeUnit.MINUTES, fixedRate = 5)
-    public void accessStatistics() {
-        log.info(">>> Start do statistics for access_log.");
-
-        List<AccessLog> accesses = accessLogRepos.findAll();
-
-        Map<String, List<AccessLog>> accessesGrpByUser = accesses.stream().collect(Collectors.groupingBy(AccessLog::getUsername));
-
-        accessesGrpByUser.forEach((user, logs) -> {
-
-            // 获取最新的 access log
-            AccessLog lastLog = logs.stream().max(Comparator.comparing(AccessLog::getCreated)).get();
-
-            AccessStatistics statistics = accessStatisticsRepos.findByUsername(user);
-
-            if (statistics == null) {
-                statistics = BaseEntity.instance(AccessStatistics.class);
-            }
-
-            statistics.setUsername(user);
-            statistics.setCount(logs.size());
-            statistics.setLastAccess(lastLog.getCreated());
-
-            accessStatisticsRepos.save(statistics);
-
-            log.info("user: [{}], accessCount: [{}], lastAccess: [{}]", statistics.getUsername(), statistics.getCount(), statistics.getLastAccessStr());
-        });
-
-        log.info(">>> End do statistics for access_log.");
     }
 }

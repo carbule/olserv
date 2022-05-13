@@ -6,6 +6,4 @@ package cn.azhicloud.olserv.service;
 public interface HouseKeepingService {
 
     void apiErrorHouseKeeping();
-
-    void accessLogHouseKeeping();
 }

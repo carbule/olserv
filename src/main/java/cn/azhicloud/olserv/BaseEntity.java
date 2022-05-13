@@ -5,10 +5,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
-import cn.azhicloud.idgen.util.IdGenUtils;
 import cn.azhicloud.sequence.Sequences;
-import cn.azhicloud.sequence.entity.Sequence;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

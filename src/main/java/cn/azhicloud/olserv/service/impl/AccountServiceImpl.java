@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -14,12 +15,10 @@ import cn.azhicloud.olserv.model.ListAccessKeysResponse;
 import cn.azhicloud.olserv.model.ListAccountsResponse;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.repository.AccessKeyRepos;
-import cn.azhicloud.olserv.repository.AccessLogRepos;
 import cn.azhicloud.olserv.repository.AccountRepos;
 import cn.azhicloud.olserv.repository.ShadowboxRepos;
 import cn.azhicloud.olserv.service.AccountService;
 import cn.azhicloud.olserv.service.OutlineManagerService;
-import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hashids.Hashids;
@@ -48,8 +47,6 @@ public class AccountServiceImpl implements AccountService {
     private final ShadowboxRepos shadowboxRepos;
 
     private final AccessKeyRepos accessKeyRepos;
-
-    private final AccessLogRepos accessLogRepos;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -93,6 +90,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public ListAccessKeysResponse listAccessKeys(String hid) {
         long[] ids = hashids.decode(hid);
         if (ids.length != 1) {
@@ -113,8 +111,8 @@ public class AccountServiceImpl implements AccountService {
             response.getAccessKeys().add(keyVO);
         });
 
-        // 创建访问日志
-        accessLogRepos.newAccessLog(account.getUsername(), JSON.toJSONString(response));
+        // 修改最后访问时间
+        account.setLastAccess(new Date());
         return response;
     }
 
