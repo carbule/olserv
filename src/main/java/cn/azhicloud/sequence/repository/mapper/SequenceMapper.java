@@ -1,6 +1,5 @@
 package cn.azhicloud.sequence.repository.mapper;
 
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -12,12 +11,6 @@ import org.apache.ibatis.annotations.Update;
  */
 @Mapper
 public interface SequenceMapper {
-
-    /**
-     * 插入新号
-     */
-    @Insert("INSERT INTO sequence(id) SELECT MAX(id) + CEIL(RAND() * 5) FROM sequence")
-    void insert();
 
     /**
      * 更新新号

@@ -8,13 +8,6 @@ package cn.azhicloud.sequence.service;
 public interface SequenceService {
 
     /**
-     * 获取新序列（同步方法）
-     *
-     * @return next long
-     */
-    Long nextSync();
-
-    /**
      * 获取新序列
      *
      * @return next long
