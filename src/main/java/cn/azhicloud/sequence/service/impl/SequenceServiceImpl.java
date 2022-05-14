@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class SequenceServiceImpl implements SequenceService, CommandLineRunner {
 
-    @Value("${sequence.init}")
+    @Value("${sequence.init:10000000}")
     private Long initSequence;
 
     private final SequenceMapper sequenceMapper;

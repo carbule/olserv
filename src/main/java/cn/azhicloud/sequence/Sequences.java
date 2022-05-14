@@ -1,12 +1,11 @@
 package cn.azhicloud.sequence;
 
 import java.util.Optional;
-import java.util.Queue;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import cn.azhicloud.sequence.service.SequenceService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,12 +19,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class Sequences {
 
-    private static final Queue<Long> QUEUE = new LinkedBlockingQueue<>(1000);
+    private static final LinkedBlockingQueue<Long> QUEUE = new LinkedBlockingQueue<>(1000);
 
     private static SequenceService sequenceService;
 
     public static Long next() {
         return Optional.ofNullable(QUEUE.poll()).orElseGet(() -> {
+            log.warn(">>> Sequence queue is empty, start manual fill queue.");
             fillQueue(sequenceService.next());
             return QUEUE.poll();
         });
@@ -39,5 +39,17 @@ public class Sequences {
 
     public Sequences(SequenceService sequenceService) {
         Sequences.sequenceService = sequenceService;
+        // 启动单线程异步实时填充队列
+        Executors.newSingleThreadExecutor().execute(this::asyncFillQueue);
+    }
+
+    public void asyncFillQueue() {
+        while (true) {
+            try {
+                QUEUE.put(sequenceService.next());
+            } catch (InterruptedException e) {
+                log.error(">>> Fill queue failed.", e);
+            }
+        }
     }
 }

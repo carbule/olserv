@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableScheduling
+@EnableAsync
 public class Application {
 
     private static final int TIMEOUT_MILLISECONDS = 5 * 1000;
