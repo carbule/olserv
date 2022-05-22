@@ -1,9 +1,5 @@
 package cn.azhicloud.olserv.service.impl;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Objects;
-
 import cn.azhicloud.olserv.ApiException;
 import cn.azhicloud.olserv.BaseEntity;
 import cn.azhicloud.olserv.model.entity.ApiError;
@@ -20,6 +16,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author zhouzhifeng
@@ -90,15 +91,22 @@ public class OutlineManagerServiceImpl implements OutlineManagerService {
      * 异常需要被记录
      */
     private ApiException saveApiFailedReason(Shadowbox box, ApiException e) {
-        ApiError err = BaseEntity.instance(ApiError.class);
-        err.setApiName(box.getName());
-        err.setApiUrl(box.getApiUrl());
-
         StringWriter writer = new StringWriter();
         e.printStackTrace(new PrintWriter(writer));
-        err.setReason(writer.toString());
 
-        apiErrorRepos.save(err);
+        ApiError apiErr = apiErrorRepos.findByApiUrl(box.getApiUrl());
+        if (apiErr == null) {
+            ApiError err = BaseEntity.instance(ApiError.class);
+            err.setApiName(box.getName());
+            err.setApiUrl(box.getApiUrl());
+            err.setReason(writer.toString());
+            err.setLatest(new Date());
+            apiErrorRepos.save(err);
+        } else {
+            // 托管态
+            apiErr.setReason(writer.toString());
+            apiErr.setLatest(new Date());
+        }
         return e;
     }
 }

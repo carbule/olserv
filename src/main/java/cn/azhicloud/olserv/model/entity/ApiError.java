@@ -1,11 +1,12 @@
 package cn.azhicloud.olserv.model.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-
 import cn.azhicloud.olserv.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import java.util.Date;
 
 /**
  * @author zhouzhifeng
@@ -23,4 +24,6 @@ public class ApiError extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String reason;
+
+    private Date latest;
 }

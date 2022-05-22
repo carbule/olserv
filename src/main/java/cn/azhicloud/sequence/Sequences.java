@@ -1,12 +1,12 @@
 package cn.azhicloud.sequence;
 
-import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import cn.azhicloud.sequence.service.SequenceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Sequence 工具类
@@ -25,7 +25,7 @@ public class Sequences {
 
     public static Long next() {
         return Optional.ofNullable(QUEUE.poll()).orElseGet(() -> {
-            log.warn(">>> Sequence queue is empty, start manual fill queue.");
+            log.warn("Sequence queue is empty, start manual fill queue.");
             fillQueue(sequenceService.next());
             return QUEUE.poll();
         });
@@ -48,7 +48,7 @@ public class Sequences {
             try {
                 QUEUE.put(sequenceService.next());
             } catch (InterruptedException e) {
-                log.error(">>> Fill queue failed.", e);
+                log.error("Fill queue failed.", e);
             }
         }
     }

@@ -9,4 +9,6 @@ import cn.azhicloud.olserv.model.entity.ApiError;
  * @since 2021/10/6 18:08
  */
 public interface ApiErrorRepos extends BaseRepository<ApiError> {
+
+    ApiError findByApiUrl(String url);
 }

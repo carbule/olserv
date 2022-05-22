@@ -10,5 +10,5 @@ public interface SchedulerService {
     /**
      * 持久化 access-keys
      */
-    void persistenceAccessKeys();
+    void flushAccessKeys();
 }
