@@ -16,4 +16,10 @@ public interface ApiErrorMapper {
 
     @Select("SELECT * FROM api_error WHERE DATE_SUB(CURDATE(),INTERVAL #{days} DAY) > created")
     List<ApiError> selectCreatedBeforeDays(Integer days);
+
+    @Select("SELECT * FROM api_error WHERE TO_DAYS(created) = TO_DAYS(NOW())")
+    List<ApiError> selectCreatedAtToday();
+
+    @Select("SELECT * FROM api_error WHERE TO_DAYS(created) = TO_DAYS(NOW()) - 1")
+    List<ApiError> selectCreatedAtYesterday();
 }
