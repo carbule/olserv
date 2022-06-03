@@ -1,32 +1,27 @@
 package cn.azhicloud.olserv.service.impl;
 
-import cn.azhicloud.olserv.BaseEntity;
-import cn.azhicloud.olserv.model.CreateAccountRequest;
-import cn.azhicloud.olserv.model.CreateAccountResponse;
-import cn.azhicloud.olserv.model.ListAccessKeysResponse;
-import cn.azhicloud.olserv.model.ListAccountsResponse;
-import cn.azhicloud.olserv.model.entity.Account;
-import cn.azhicloud.olserv.repository.AccessKeyRepos;
-import cn.azhicloud.olserv.repository.AccountRepos;
-import cn.azhicloud.olserv.repository.ShadowboxRepos;
-import cn.azhicloud.olserv.service.AccountService;
-import cn.azhicloud.olserv.service.OutlineManagerService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.hashids.Hashids;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Base64Utils;
-import org.springframework.util.StringUtils;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
+
+import cn.azhicloud.olserv.BaseEntity;
+import cn.azhicloud.olserv.model.CreateAccountRequest;
+import cn.azhicloud.olserv.model.CreateAccountResponse;
+import cn.azhicloud.olserv.model.ListAccountsResponse;
+import cn.azhicloud.olserv.model.entity.Account;
+import cn.azhicloud.olserv.model.entity.Shadowbox;
+import cn.azhicloud.olserv.model.outline.AccessKey;
+import cn.azhicloud.olserv.repository.AccountRepository;
+import cn.azhicloud.olserv.repository.ShadowboxRepository;
+import cn.azhicloud.olserv.service.AccountService;
+import cn.azhicloud.olserv.service.ShadowboxService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hashids.Hashids;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 
 /**
  * @author zhouzhifeng
@@ -38,15 +33,13 @@ import java.util.StringJoiner;
 @Slf4j
 public class AccountServiceImpl implements AccountService {
 
-    private final AccountRepos accountRepos;
+    private final AccountRepository accountRepository;
 
     private final Hashids hashids;
 
-    private final OutlineManagerService outlineManagerService;
+    private final ShadowboxRepository shadowboxRepos;
 
-    private final ShadowboxRepos shadowboxRepos;
-
-    private final AccessKeyRepos accessKeyRepos;
+    private final ShadowboxService shadowboxService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -58,7 +51,7 @@ public class AccountServiceImpl implements AccountService {
         request.getNames().forEach(name -> {
             Account data = BaseEntity.instance(Account.class);
             data.setUsername(name);
-            Account saved = accountRepos.save(data);
+            Account saved = accountRepository.save(data);
 
             CreateAccountResponse.Account vo = new CreateAccountResponse.Account();
             vo.setUid(hashids.encode(saved.getId()));
@@ -73,7 +66,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public ListAccountsResponse listAccounts() {
-        List<Account> all = accountRepos.findAll();
+        List<Account> all = accountRepository.findAll();
 
         ListAccountsResponse response = new ListAccountsResponse();
         response.setAccounts(new ArrayList<>());
@@ -91,47 +84,44 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public ListAccessKeysResponse listAccessKeys(String hid) {
+    public List<Shadowbox> listShadowboxOwnedByAccount(String hid) {
         long[] ids = hashids.decode(hid);
         if (ids.length != 1) {
             throw new RuntimeException("hid is not expected");
         }
 
-        Account account = accountRepos.findById(ids[0]).orElseThrow(() ->
+        Account account = accountRepository.findById(ids[0]).orElseThrow(() ->
                 new RuntimeException("account not exist"));
-
-        ListAccessKeysResponse response = new ListAccessKeysResponse();
-        response.setAccessKeys(new ArrayList<>());
-
-        List<cn.azhicloud.olserv.model.entity.AccessKey> keys = accessKeyRepos.findByNameOrderByServerName(account.getUsername());
-        keys.forEach(key -> {
-            ListAccessKeysResponse.AccessKey keyVO = new ListAccessKeysResponse.AccessKey();
-            BeanUtils.copyProperties(key, keyVO);
-            keyVO.setName(key.getServerName());
-            response.getAccessKeys().add(keyVO);
-        });
-
-        // 修改最后访问时间
         account.setLastAccess(new Date());
-        return response;
+
+        List<Shadowbox> boxes = shadowboxService.listShadowboxes();
+
+        for (Iterator<Shadowbox> it = boxes.iterator(); it.hasNext(); ) {
+            Shadowbox box = it.next();
+            Optional<AccessKey> first = box.getAccessKeys().stream()
+                    .filter(k -> Objects.equals(account.getUsername(), k.getName()))
+                    .findFirst();
+
+            if (first.isPresent()) {
+                box.setAccessKeys(Collections.singletonList(first.get()));
+            } else {
+                it.remove();
+            }
+        }
+        boxes.sort(Comparator.comparing(Shadowbox::getName));
+        return boxes;
     }
 
     @Override
     @Transactional
     public String getAccessKeysUrl(String hid) {
-        ListAccessKeysResponse response = listAccessKeys(hid);
+        List<Shadowbox> boxes = listShadowboxOwnedByAccount(hid);
 
         StringJoiner joiner = new StringJoiner(System.lineSeparator());
-        response.getAccessKeys().forEach(k -> {
+        boxes.forEach(box -> {
             try {
-                String accessUrl = k.getAccessUrl();
-
-                if (StringUtils.hasText(k.getRedirectAddress()) && k.getRedirectPort() != null) {
-                    accessUrl = accessUrl.substring(0, accessUrl.lastIndexOf("@") + 1) + k.getRedirectAddress() + ":" + k.getRedirectPort();
-                }
-
-                String encoding = accessUrl + "#" + URLEncoder.encode(k.getName(), "UTF-8");
-
+                AccessKey key = box.getAccessKeys().get(0);
+                String encoding = key.getAccessUrl() + "#" + URLEncoder.encode(box.getName(), "UTF-8");
                 joiner.add(encoding);
             } catch (UnsupportedEncodingException e) {
                 // ignore

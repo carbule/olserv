@@ -9,6 +9,8 @@ spring:
   mvc:
     servlet:
       load-on-startup: 1
+  jackson:
+    default-property-inclusion: NON_NULL
 server:
   servlet:
     encoding:
@@ -21,7 +23,6 @@ hash-ids:
 sequence:
   init: 10000000
 
-
 ---
 #### dev ####
 spring:
@@ -31,6 +32,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: true
   datasource:
     username: root
     password: 123456

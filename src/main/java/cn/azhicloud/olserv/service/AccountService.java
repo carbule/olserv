@@ -1,9 +1,11 @@
 package cn.azhicloud.olserv.service;
 
+import java.util.List;
+
 import cn.azhicloud.olserv.model.CreateAccountRequest;
 import cn.azhicloud.olserv.model.CreateAccountResponse;
-import cn.azhicloud.olserv.model.ListAccessKeysResponse;
 import cn.azhicloud.olserv.model.ListAccountsResponse;
+import cn.azhicloud.olserv.model.entity.Shadowbox;
 
 /**
  * @author zhouzhifeng
@@ -27,13 +29,7 @@ public interface AccountService {
      */
     ListAccountsResponse listAccounts();
 
-    /**
-     * 获取归属账户的 access-keys
-     *
-     * @param hid hash id
-     * @return ListAccessKeysResponse
-     */
-    ListAccessKeysResponse listAccessKeys(String hid);
+    List<Shadowbox> listShadowboxOwnedByAccount(String hid);
 
     /**
      * 获取 access-keys 链接

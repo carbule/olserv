@@ -1,10 +1,11 @@
 package cn.azhicloud.olserv.controller;
 
+import java.util.List;
 import javax.validation.constraints.NotBlank;
 
 import cn.azhicloud.olserv.BaseResponse;
 import cn.azhicloud.olserv.model.CreateAccountRequest;
-import cn.azhicloud.olserv.model.ListAccessKeysResponse;
+import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.service.AccountService;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -35,9 +36,9 @@ public class AccountController {
     }
 
     @GetMapping("/access-keys")
-    public ListAccessKeysResponse listAccessKeys(@RequestParam(value = "hid", required = false)
-                                                 @NotBlank(message = "hid.null") String hid) {
-        return accountService.listAccessKeys(hid);
+    public List<Shadowbox> listAccessKeys(@RequestParam(value = "hid", required = false)
+                                          @NotBlank(message = "hid.null") String hid) {
+        return accountService.listShadowboxOwnedByAccount(hid);
     }
 
     @GetMapping("/access-keys/url")

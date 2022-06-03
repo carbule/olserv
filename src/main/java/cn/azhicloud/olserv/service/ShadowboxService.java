@@ -1,8 +1,8 @@
 package cn.azhicloud.olserv.service;
 
-import cn.azhicloud.olserv.model.AddShadowboxRequest;
-import cn.azhicloud.olserv.model.AddShadowboxResponse;
-import cn.azhicloud.olserv.model.ListShadowboxesResponse;
+import java.util.List;
+
+import cn.azhicloud.olserv.model.entity.Shadowbox;
 
 /**
  * @author zhouzhifeng
@@ -11,18 +11,7 @@ import cn.azhicloud.olserv.model.ListShadowboxesResponse;
  */
 public interface ShadowboxService {
 
-    /**
-     * 添加 outline 服务器
-     *
-     * @param request req
-     * @return AddShadowboxResponse
-     */
-    AddShadowboxResponse addShadowbox(AddShadowboxRequest request);
+    Shadowbox addShadowbox(String apiUrl);
 
-    /**
-     * 列举所有 outline 服务器
-     *
-     * @return ListShadowboxesResponse
-     */
-    ListShadowboxesResponse listShadowboxes();
+    List<Shadowbox> listShadowboxes();
 }

@@ -8,5 +8,5 @@ import cn.azhicloud.olserv.model.entity.Account;
  * @version 1.0
  * @since 2021/10/3 17:35
  */
-public interface AccountRepos extends BaseRepository<Account> {
+public interface AccountRepository extends BaseRepository<Account> {
 }

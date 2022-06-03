@@ -37,9 +37,5 @@ public class ListAccessKeysResponse extends BaseResponse {
         private String method;
 
         private String accessUrl;
-
-        private String redirectAddress;
-
-        private Integer redirectPort;
     }
 }

@@ -1,14 +1,16 @@
 package cn.azhicloud.olserv.controller;
 
+import java.util.List;
+
 import javax.validation.constraints.NotBlank;
 
-import cn.azhicloud.olserv.BaseResponse;
-import cn.azhicloud.olserv.model.AddShadowboxRequest;
-import cn.azhicloud.olserv.model.ListShadowboxesResponse;
+import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.service.ShadowboxService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author zhouzhifeng
@@ -23,21 +25,13 @@ public class ShadowboxController {
 
     private final ShadowboxService shadowboxService;
 
-    @PostMapping("/add")
-    public BaseResponse addShadowbox(@RequestBody @Validated AddShadowboxRequest request) {
-        return shadowboxService.addShadowbox(request);
-    }
-
     @GetMapping("/add")
-    public BaseResponse addShadowboxGetMethod(@NotBlank(message = "apiUrl.null") String apiUrl) {
-        AddShadowboxRequest request = new AddShadowboxRequest();
-        request.setApiUrl(apiUrl);
-
-        return shadowboxService.addShadowbox(request);
+    public Shadowbox addShadowboxGetMethod(@NotBlank(message = "miss param: apiUrl") String apiUrl) {
+        return shadowboxService.addShadowbox(apiUrl);
     }
 
     @GetMapping("/list")
-    public ListShadowboxesResponse listShadowboxes() {
+    public List<Shadowbox> listShadowboxAccessKeys() {
         return shadowboxService.listShadowboxes();
     }
 }

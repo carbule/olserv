@@ -1,21 +1,20 @@
 package cn.azhicloud.olserv.service.impl;
 
-import java.util.ArrayList;
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import cn.azhicloud.olserv.ApiException;
-import cn.azhicloud.olserv.BaseEntity;
-import cn.azhicloud.olserv.model.AddShadowboxRequest;
-import cn.azhicloud.olserv.model.AddShadowboxResponse;
-import cn.azhicloud.olserv.model.ListShadowboxesResponse;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
-import cn.azhicloud.olserv.model.outline.ServerInformation;
-import cn.azhicloud.olserv.repository.ShadowboxRepos;
-import cn.azhicloud.olserv.service.OutlineManagerService;
+import cn.azhicloud.olserv.model.outline.Server;
+import cn.azhicloud.olserv.repository.ShadowboxRepository;
+import cn.azhicloud.olserv.service.OutlineFeignClient;
 import cn.azhicloud.olserv.service.ShadowboxService;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,59 +28,44 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ShadowboxServiceImpl implements ShadowboxService {
 
-    private final ShadowboxRepos shadowboxRepos;
+    private final ShadowboxRepository shadowboxRepository;
 
-    private final OutlineManagerService outlineManagerService;
+    private final OutlineFeignClient outlineFeignClient;
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public AddShadowboxResponse addShadowbox(AddShadowboxRequest request) {
-        Optional<Shadowbox> optional = shadowboxRepos.findByApiUrl(request.getApiUrl());
-        if (optional.isPresent()) {
-            throw new RuntimeException("shadowbox.existed");
+    public Shadowbox addShadowbox(String apiUrl) {
+        if (shadowboxRepository.existsById(apiUrl)) {
+            throw new RuntimeException("repeat");
         }
 
-        // 添加 outline 服务器时获取服务器名称 用于校验 apiUrl 是否有效
-        ServerInformation server = outlineManagerService.getServerInformation(request.getApiUrl());
+        Server server = outlineFeignClient.returnsInformationAboutTheServer(URI.create(apiUrl));
 
-        Shadowbox shadowbox = BaseEntity.instance(Shadowbox.class);
-        shadowbox.setName(server.getName());
-        shadowbox.setApiUrl(request.getApiUrl());
-        shadowbox.setCertSha256(request.getCertSha256());
-        shadowbox.setEnabled(true);
-        shadowbox.setRedirectAddress(request.getRedirectAddress());
-        shadowbox.setRedirectPort(request.getRedirectPort());
-
-        shadowboxRepos.save(shadowbox);
-
-        AddShadowboxResponse response = new AddShadowboxResponse();
-        response.setServerName(server.getName());
-        return response;
+        Shadowbox shadowbox = new Shadowbox();
+        shadowbox.setApiUrl(apiUrl);
+        BeanUtils.copyProperties(server, shadowbox);
+        return shadowboxRepository.save(shadowbox);
     }
 
     @Override
-    public ListShadowboxesResponse listShadowboxes() {
-        List<Shadowbox> shadowboxes = shadowboxRepos.findAll();
-
-        ListShadowboxesResponse response = new ListShadowboxesResponse();
-        response.setShadowboxes(new ArrayList<>());
-
-        shadowboxes.forEach(box -> {
+    @SneakyThrows
+    @Transactional
+    public List<Shadowbox> listShadowboxes() {
+        List<Shadowbox> shadowboxes = shadowboxRepository.findAll();
+        CountDownLatch latch = new CountDownLatch(shadowboxes.size());
+        ExecutorService executor = Executors.newCachedThreadPool();
+        shadowboxes.forEach(box ->executor.execute(() -> {
             try {
-                ListShadowboxesResponse.Shadowbox boxVO = new ListShadowboxesResponse.Shadowbox();
-
-                ServerInformation server = outlineManagerService.getServerInformation(box);
-
-                boxVO.setName(server.getName());
-                boxVO.setApiUrl(box.getApiUrl());
-                boxVO.setCertSha256(box.getCertSha256());
-
-                response.getShadowboxes().add(boxVO);
-            } catch (ApiException e) {
-                log.error("--------------------", e);
+                URI uri = URI.create(box.getApiUrl());
+                // 如果服务端有变更，托管态实体自动更新
+                BeanUtils.copyProperties(outlineFeignClient.returnsInformationAboutTheServer(uri), box);
+                box.setAccessKeys(outlineFeignClient.listsTheAccessKeys(uri)
+                        .getAccessKeys());
+            } catch (Exception e) {
+                log.error("call api {} failed", box.getApiUrl(), e);
             }
-        });
-
-        return response;
+            latch.countDown();
+        }));
+        latch.await();
+        return shadowboxes;
     }
 }
