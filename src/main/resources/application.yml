@@ -11,6 +11,12 @@ spring:
       load-on-startup: 1
   jackson:
     default-property-inclusion: NON_NULL
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 3000
+        readTimeout: 3000
 server:
   servlet:
     encoding:

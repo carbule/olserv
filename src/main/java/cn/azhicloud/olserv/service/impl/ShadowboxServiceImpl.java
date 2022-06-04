@@ -1,6 +1,7 @@
 package cn.azhicloud.olserv.service.impl;
 
 import java.net.URI;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -53,18 +54,22 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         List<Shadowbox> shadowboxes = shadowboxRepository.findAll();
         CountDownLatch latch = new CountDownLatch(shadowboxes.size());
         ExecutorService executor = Executors.newCachedThreadPool();
-        shadowboxes.forEach(box ->executor.execute(() -> {
-            try {
-                URI uri = URI.create(box.getApiUrl());
-                // 如果服务端有变更，托管态实体自动更新
-                BeanUtils.copyProperties(outlineFeignClient.returnsInformationAboutTheServer(uri), box);
-                box.setAccessKeys(outlineFeignClient.listsTheAccessKeys(uri)
-                        .getAccessKeys());
-            } catch (Exception e) {
-                log.error("call api {} failed", box.getApiUrl(), e);
-            }
-            latch.countDown();
-        }));
+        for (Iterator<Shadowbox> it = shadowboxes.iterator(); it.hasNext(); ) {
+            Shadowbox box = it.next();
+            executor.execute(() -> {
+                try {
+                    URI uri = URI.create(box.getApiUrl());
+                    // 如果服务端有变更，托管态实体自动更新
+                    BeanUtils.copyProperties(outlineFeignClient.returnsInformationAboutTheServer(uri), box);
+                    box.setAccessKeys(outlineFeignClient.listsTheAccessKeys(uri)
+                            .getAccessKeys());
+                } catch (Exception e) {
+                    log.error("call api {} failed", box.getApiUrl(), e);
+                    it.remove();
+                }
+                latch.countDown();
+            });
+        }
         latch.await();
         return shadowboxes;
     }
