@@ -1,23 +1,26 @@
 package cn.azhicloud.olserv.model.entity;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 
-import cn.azhicloud.olserv.BaseEntity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author zhouzhifeng
  * @version 1.0
  * @since 2021/10/3 17:33
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-public class Account extends BaseEntity {
+public class Account {
+
+    @Id
+    private String id;
+
+    private LocalDateTime createdAt;
 
     private String username;
 
-    private Date lastAccess;
+    private LocalDateTime lastAccess;
 }

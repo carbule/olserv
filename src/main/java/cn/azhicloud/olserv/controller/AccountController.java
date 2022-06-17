@@ -1,15 +1,16 @@
 package cn.azhicloud.olserv.controller;
 
 import java.util.List;
-import javax.validation.constraints.NotBlank;
 
-import cn.azhicloud.olserv.BaseResponse;
-import cn.azhicloud.olserv.model.CreateAccountRequest;
+import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.service.AccountService;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author zhouzhifeng
@@ -24,26 +25,23 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @PostMapping("/create")
-    public BaseResponse createNew(@RequestBody
-                                  @Validated CreateAccountRequest request) {
-        return accountService.createNew(request);
+    @GetMapping("/create/{username}")
+    public Account createNew(@PathVariable String username) {
+        return accountService.createAccount(username);
     }
 
     @GetMapping("/list")
-    public BaseResponse listAccount() {
+    public List<Account> listAccount() {
         return accountService.listAccounts();
     }
 
-    @GetMapping("/access-keys")
-    public List<Shadowbox> listAccessKeys(@RequestParam(value = "hid", required = false)
-                                          @NotBlank(message = "hid.null") String hid) {
-        return accountService.listShadowboxOwnedByAccount(hid);
+    @GetMapping("/{accountId}/access-keys")
+    public List<Shadowbox> listAccessKeys(@PathVariable String accountId) {
+        return accountService.listShadowboxOwnedByAccount(accountId);
     }
 
-    @GetMapping("/access-keys/url")
-    public String getAccessKeysUrl(@RequestParam(value = "hid", required = false)
-                                   @NotBlank(message = "hid.null") String hid) {
-        return accountService.getAccessKeysUrl(hid);
+    @GetMapping("/{accountId}/access-keys/url")
+    public String getAccessKeysUrl(@PathVariable String accountId) {
+        return accountService.getAccessKeysUrl(accountId);
     }
 }

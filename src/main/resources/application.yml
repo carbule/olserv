@@ -22,12 +22,6 @@ server:
     encoding:
       force: true
     context-path: /olserv
-hash-ids:
-  length: 10
-  salt: ee1d5305-57e6-4698-b6d7-ae77165bad07
-# 序列初始数字
-sequence:
-  init: 10000000
 
 ---
 #### dev ####

@@ -2,9 +2,7 @@ package cn.azhicloud.olserv.service;
 
 import java.util.List;
 
-import cn.azhicloud.olserv.model.CreateAccountRequest;
-import cn.azhicloud.olserv.model.CreateAccountResponse;
-import cn.azhicloud.olserv.model.ListAccountsResponse;
+import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 
 /**
@@ -14,28 +12,11 @@ import cn.azhicloud.olserv.model.entity.Shadowbox;
  */
 public interface AccountService {
 
-    /**
-     * 新创建新账户
-     *
-     * @param request req
-     * @return CreateAccountResponse
-     */
-    CreateAccountResponse createNew(CreateAccountRequest request);
+    Account createAccount(String username);
 
-    /**
-     * 列举所有账号
-     *
-     * @return ListAccountsResponse
-     */
-    ListAccountsResponse listAccounts();
+    List<Account> listAccounts();
 
-    List<Shadowbox> listShadowboxOwnedByAccount(String hid);
+    List<Shadowbox> listShadowboxOwnedByAccount(String id);
 
-    /**
-     * 获取 access-keys 链接
-     *
-     * @param hid hash id
-     * @return url
-     */
-    String getAccessKeysUrl(String hid);
+    String getAccessKeysUrl(String id);
 }

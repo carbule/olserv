@@ -20,34 +20,34 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler
-    public BaseResponse handle(HttpRequestMethodNotSupportedException ex) {
-        return new BaseResponse(-1, "bad request");
+    public String handle(HttpRequestMethodNotSupportedException ex) {
+        return ex.getMessage();
     }
 
     @ExceptionHandler
-    public BaseResponse handle(HttpMessageNotReadableException ex) {
-        return new BaseResponse(-1, "bad request");
+    public String handle(HttpMessageNotReadableException ex) {
+        return ex.getMessage();
     }
 
     @ExceptionHandler
-    public BaseResponse handle(MethodArgumentNotValidException ex) {
+    public String handle(MethodArgumentNotValidException ex) {
         StringJoiner joiner = new StringJoiner(", ");
         ex.getBindingResult().getFieldErrors().forEach(err -> joiner.add(err.getDefaultMessage()));
 
-        return new BaseResponse(-1, joiner.toString());
+        return joiner.toString();
     }
 
     @ExceptionHandler
-    public BaseResponse handle(ConstraintViolationException ex) {
+    public String handle(ConstraintViolationException ex) {
         StringJoiner joiner = new StringJoiner(", ");
         ex.getConstraintViolations().forEach(err -> joiner.add(err.getMessage()));
 
-        return new BaseResponse(-1, joiner.toString());
+        return joiner.toString();
     }
 
     @ExceptionHandler
-    public BaseResponse handle(Exception e) {
-        log.error("---------------", e);
-        return new BaseResponse(-1, e.getMessage());
+    public String handle(Exception e) {
+        log.error(e.getMessage(), e);
+        return e.getMessage();
     }
 }
