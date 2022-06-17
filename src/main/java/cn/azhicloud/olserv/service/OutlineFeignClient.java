@@ -2,12 +2,11 @@ package cn.azhicloud.olserv.service;
 
 import java.net.URI;
 
+import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.model.outline.AccessKeys;
 import cn.azhicloud.olserv.model.outline.Server;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author zhouzhifeng
@@ -25,4 +24,10 @@ public interface OutlineFeignClient {
 
     @DeleteMapping("/access-keys/{id}")
     void deletesAnAccessKey(URI uri, @PathVariable String id);
+
+    @PostMapping("/access-keys")
+    AccessKey createsANewAccessKey(URI uri);
+
+    @PutMapping("/access-keys/{id}/name")
+    void renamesAnAccessKey(URI uri, @PathVariable String id, @RequestBody AccessKey key);
 }

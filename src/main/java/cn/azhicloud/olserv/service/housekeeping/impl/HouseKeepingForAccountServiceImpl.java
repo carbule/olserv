@@ -1,7 +1,6 @@
 package cn.azhicloud.olserv.service.housekeeping.impl;
 
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,7 +44,7 @@ public class HouseKeepingForAccountServiceImpl implements HouseKeepingService {
     }
 
     private void doIt() {
-        List<Account> expiredAccounts = accountMapper.selectAccountsBeforeDate(LocalDateTime.now().minusDays(30L));
+        List<Account> expiredAccounts = accountMapper.selectExpiredAccounts();
         if (expiredAccounts.size() > 0) {
             expiredAccounts.forEach(account -> deleteAccessKey(account.getId()));
             accountRepository.deleteAllByIdInBatch(

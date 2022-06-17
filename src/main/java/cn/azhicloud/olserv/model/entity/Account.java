@@ -20,6 +20,8 @@ public class Account {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime expiredAt;
+
     private String username;
 
     private LocalDateTime lastAccess;

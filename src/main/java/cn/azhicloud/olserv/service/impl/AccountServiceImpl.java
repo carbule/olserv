@@ -36,11 +36,22 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public Account createAccount(String username) {
+        Account existed = accountRepository.findByUsername(username);
+        if (existed != null) {
+            throw new RuntimeException("repeat");
+        }
+
         Account account = new Account();
         account.setId(NanoIdUtils.randomNanoId());
-        account.setCreatedAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        account.setCreatedAt(now);
+        account.setExpiredAt(now.plusDays(30L));
         account.setUsername(username);
-        return accountRepository.save(account);
+        Account saved = accountRepository.save(account);
+
+        // 为新创建的用户分配 key
+        shadowboxService.createAccessKeyForAllShadowbox(saved.getUsername());
+        return saved;
     }
 
     @Override
@@ -75,7 +86,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public String getAccessKeysUrl(String id) {
+    public String getAccessKeysSubscribe(String id) {
         List<Shadowbox> boxes = listShadowboxOwnedByAccount(id);
 
         StringJoiner joiner = new StringJoiner(System.lineSeparator());

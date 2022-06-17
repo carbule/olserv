@@ -18,5 +18,5 @@ public interface AccountService {
 
     List<Shadowbox> listShadowboxOwnedByAccount(String id);
 
-    String getAccessKeysUrl(String id);
+    String getAccessKeysSubscribe(String id);
 }

@@ -40,8 +40,8 @@ public class AccountController {
         return accountService.listShadowboxOwnedByAccount(accountId);
     }
 
-    @GetMapping("/{accountId}/access-keys/url")
-    public String getAccessKeysUrl(@PathVariable String accountId) {
-        return accountService.getAccessKeysUrl(accountId);
+    @GetMapping("/{accountId}/access-keys/subscribe")
+    public String getAccessKeysSubscribe(@PathVariable String accountId) {
+        return accountService.getAccessKeysSubscribe(accountId);
     }
 }

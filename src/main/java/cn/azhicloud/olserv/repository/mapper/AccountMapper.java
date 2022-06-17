@@ -17,4 +17,7 @@ public interface AccountMapper {
 
     @Select("SELECT * FROM account WHERE created_at <= #{dateTime}")
     List<Account> selectAccountsBeforeDate(LocalDateTime dateTime);
+
+    @Select("SELECT * FROM account WHERE expired_at < NOW()")
+    List<Account> selectExpiredAccounts();
 }

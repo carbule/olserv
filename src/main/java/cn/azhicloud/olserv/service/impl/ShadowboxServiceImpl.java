@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import cn.azhicloud.olserv.model.entity.Shadowbox;
+import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.model.outline.Server;
 import cn.azhicloud.olserv.repository.ShadowboxRepository;
 import cn.azhicloud.olserv.service.OutlineFeignClient;
@@ -72,5 +73,37 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         }
         latch.await();
         return shadowboxes;
+    }
+
+    @Override
+    @SneakyThrows
+    public void createAccessKeyForAllShadowbox(String keyName) {
+        List<Shadowbox> shadowboxes = shadowboxRepository.findAll();
+        CountDownLatch latch = new CountDownLatch(shadowboxes.size());
+        ExecutorService executor = Executors.newCachedThreadPool();
+        shadowboxes.forEach(box -> {
+            executor.execute(() -> {
+                try {
+                    URI uri = URI.create(box.getApiUrl());
+                    // 新增一个 key
+                    AccessKey accessKey = outlineFeignClient.createsANewAccessKey(uri);
+
+                    // 设置 key 的名称
+                    AccessKey renameBody = new AccessKey();
+                    renameBody.setName(keyName);
+                    try {
+                        outlineFeignClient.renamesAnAccessKey(uri, accessKey.getId(), renameBody);
+                    } catch (Exception e) {
+                        // 如果设置名称失败，删除先前创建的 key
+                        outlineFeignClient.deletesAnAccessKey(uri, accessKey.getId());
+                        throw e;
+                    }
+                } catch (Exception e) {
+                    log.error("call api {} failed", box.getApiUrl(), e);
+                }
+                latch.countDown();
+            });
+        });
+        latch.await();
     }
 }

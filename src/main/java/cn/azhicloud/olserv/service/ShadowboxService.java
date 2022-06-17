@@ -14,4 +14,6 @@ public interface ShadowboxService {
     Shadowbox addShadowbox(String apiUrl);
 
     List<Shadowbox> listShadowboxes();
+
+    void createAccessKeyForAllShadowbox(String keyName);
 }

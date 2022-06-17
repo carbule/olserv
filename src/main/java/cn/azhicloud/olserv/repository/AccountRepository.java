@@ -9,4 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @since 2021/10/3 17:35
  */
 public interface AccountRepository extends JpaRepository<Account, String> {
+
+    Account findByUsername(String username);
 }
