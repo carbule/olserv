@@ -15,6 +15,7 @@ import cn.azhicloud.olserv.service.ShadowboxService;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
@@ -32,6 +33,9 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
 
     private final ShadowboxService shadowboxService;
+
+    @Value("${url-template.account-subscribe}")
+    private String accountSubscribeUrlTemplate;
 
     @Override
     @Transactional
@@ -51,12 +55,16 @@ public class AccountServiceImpl implements AccountService {
 
         // 为新创建的用户分配 key
         shadowboxService.createAccessKeyForAllShadowbox(saved.getUsername());
+        saved.setSubscribe(accountSubscribeUrlTemplate.replace("{accountId}", saved.getId()));
         return saved;
     }
 
     @Override
     public List<Account> listAccounts() {
-        return accountRepository.findAll();
+        List<Account> all = accountRepository.findAll();
+        all.forEach(account -> account.setSubscribe(accountSubscribeUrlTemplate
+                .replace("{accountId}", account.getId())));
+        return all;
     }
 
     @Override

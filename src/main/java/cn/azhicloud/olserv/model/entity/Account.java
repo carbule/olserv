@@ -3,6 +3,7 @@ package cn.azhicloud.olserv.model.entity;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 import lombok.Data;
 
@@ -25,4 +26,7 @@ public class Account {
     private String username;
 
     private LocalDateTime lastAccess;
+
+    @Transient
+    private String subscribe;
 }
