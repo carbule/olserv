@@ -1,21 +1,29 @@
 package cn.azhicloud.olserv.service.impl;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.repository.AccountRepository;
 import cn.azhicloud.olserv.service.AccountService;
+import cn.azhicloud.olserv.service.OutlineFeignClient;
 import cn.azhicloud.olserv.service.ShadowboxService;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
@@ -32,7 +40,11 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
 
-    private final ShadowboxService shadowboxService;
+    @Autowired
+    @Lazy
+    private ShadowboxService shadowboxService;
+
+    private final OutlineFeignClient outlineFeignClient;
 
     @Value("${url-template.account-subscribe}")
     private String accountSubscribeUrlTemplate;
@@ -109,5 +121,38 @@ public class AccountServiceImpl implements AccountService {
         });
 
         return Base64Utils.encodeToUrlSafeString(joiner.toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    @SneakyThrows
+    @Transactional
+    public void createAccessKeyForAllAccounts(Shadowbox box) {
+        List<Account> accounts = accountRepository.findAll();
+        CountDownLatch latch = new CountDownLatch(accounts.size());
+        ExecutorService executor = Executors.newCachedThreadPool();
+        accounts.forEach(account -> {
+            executor.execute(() -> {
+                try {
+                    URI uri = URI.create(box.getApiUrl());
+                    // 新增一个 key
+                    AccessKey accessKey = outlineFeignClient.createsANewAccessKey(uri);
+
+                    // 设置 key 的名称
+                    AccessKey renameBody = new AccessKey();
+                    renameBody.setName(account.getUsername());
+                    try {
+                        outlineFeignClient.renamesAnAccessKey(uri, accessKey.getId(), renameBody);
+                    } catch (Exception e) {
+                        // 如果设置名称失败，删除先前创建的 key
+                        outlineFeignClient.deletesAnAccessKey(uri, accessKey.getId());
+                        throw e;
+                    }
+                } catch (Exception e) {
+                    log.error("call api {} failed", box.getApiUrl(), e);
+                }
+                latch.countDown();
+            });
+        });
+        latch.await();
     }
 }

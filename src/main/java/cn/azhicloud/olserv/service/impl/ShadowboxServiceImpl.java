@@ -11,6 +11,7 @@ import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.model.outline.Server;
 import cn.azhicloud.olserv.repository.ShadowboxRepository;
+import cn.azhicloud.olserv.service.AccountService;
 import cn.azhicloud.olserv.service.OutlineFeignClient;
 import cn.azhicloud.olserv.service.ShadowboxService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,8 @@ public class ShadowboxServiceImpl implements ShadowboxService {
 
     private final OutlineFeignClient outlineFeignClient;
 
+    private final AccountService accountService;
+
     @Override
     public Shadowbox addShadowbox(String apiUrl) {
         if (shadowboxRepository.existsById(apiUrl)) {
@@ -45,7 +48,9 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         Shadowbox shadowbox = new Shadowbox();
         shadowbox.setApiUrl(apiUrl);
         BeanUtils.copyProperties(server, shadowbox);
-        return shadowboxRepository.save(shadowbox);
+        Shadowbox saved = shadowboxRepository.save(shadowbox);
+        accountService.createAccessKeyForAllAccounts(saved);
+        return saved;
     }
 
     @Override
