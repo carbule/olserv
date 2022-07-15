@@ -1,4 +1,4 @@
-package cn.azhicloud.olserv;
+package cn.azhicloud.infra;
 
 import cn.azhicloud.Application;
 import org.springframework.boot.builder.SpringApplicationBuilder;

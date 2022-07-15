@@ -1,7 +1,7 @@
-package cn.azhicloud.olserv.controller.housekeeping;
+package cn.azhicloud.housekeeping.controller;
 
-import cn.azhicloud.olserv.model.DoHousekeepingRequest;
-import cn.azhicloud.olserv.service.housekeeping.HouseKeepingService;
+import cn.azhicloud.housekeeping.model.DoHousekeepingRQ;
+import cn.azhicloud.housekeeping.service.HouseKeepingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +20,7 @@ public class HouseKeepingController {
     private final ApplicationContext context;
 
     @PostMapping("/do")
-    public void doHousekeeping(@RequestBody DoHousekeepingRequest request) {
+    public Boolean doHousekeeping(@RequestBody DoHousekeepingRQ request) {
         HouseKeepingService houseKeepingService = context.getBean(request.getServiceCode(),
                 HouseKeepingService.class);
         if (request.getParams() == null) {
@@ -28,5 +28,7 @@ public class HouseKeepingController {
         } else {
             houseKeepingService.doHousekeeping(request.getParams());
         }
+
+        return Boolean.TRUE;
     }
 }

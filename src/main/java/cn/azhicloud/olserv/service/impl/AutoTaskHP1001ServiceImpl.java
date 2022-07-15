@@ -1,4 +1,4 @@
-package cn.azhicloud.olserv.service.housekeeping.impl;
+package cn.azhicloud.olserv.service.impl;
 
 import java.net.URI;
 import java.util.List;
@@ -8,42 +8,39 @@ import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.repository.AccountRepository;
+import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.repository.mapper.AccountMapper;
 import cn.azhicloud.olserv.service.AccountService;
-import cn.azhicloud.olserv.service.OutlineFeignClient;
-import cn.azhicloud.olserv.service.housekeeping.HouseKeepingService;
+import cn.azhicloud.task.constant.TaskTypeConst;
+import cn.azhicloud.task.service.AutoTaskExecuteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
+ * 删除账户
+ *
  * @author zhouzhifeng
  * @version 1.0
- * @since 2022/6/17 13:05
+ * @since 2022/7/9 21:47
  */
-@Service("houseKeepingForAccountServiceImpl")
-@RequiredArgsConstructor
+@Service(TaskTypeConst.DO_HOUSEKEEPING_FOR_EXPIRED_ACCOUNT)
 @Slf4j
-public class HouseKeepingForAccountServiceImpl implements HouseKeepingService {
-
-    private final AccountRepository accountRepository;
+@RequiredArgsConstructor
+public class AutoTaskHP1001ServiceImpl implements AutoTaskExecuteService {
 
     private final AccountMapper accountMapper;
 
-    private final AccountService accountService;
+    private final AccountRepository accountRepository;
 
-    private final OutlineFeignClient outlineFeignClient;
+    private final OutlineRepository outlineRepository;
+
+    private final AccountService accountService;
 
     @Override
     @Transactional
-    public void doHousekeeping() {
-        log.info("Start do housekeeping for account.");
-        doIt();
-        log.info("End do housekeeping for account.");
-    }
-
-    private void doIt() {
+    public void execute(String taskData) {
         List<Account> expiredAccounts = accountMapper.selectExpiredAccounts();
         if (expiredAccounts.size() > 0) {
             expiredAccounts.forEach(account -> deleteAccessKey(account.getId()));
@@ -60,7 +57,7 @@ public class HouseKeepingForAccountServiceImpl implements HouseKeepingService {
         List<Shadowbox> shadowboxes = accountService.listShadowboxOwnedByAccount(accountId);
         for (Shadowbox box : shadowboxes) {
             for (AccessKey key : box.getAccessKeys()) {
-                outlineFeignClient.deletesAnAccessKey(URI.create(box.getApiUrl()), key.getId());
+                outlineRepository.deletesAnAccessKey(URI.create(box.getApiUrl()), key.getId());
             }
         }
     }

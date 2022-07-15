@@ -26,7 +26,7 @@ public class ShadowboxController {
     private final ShadowboxService shadowboxService;
 
     @GetMapping("/add")
-    public Shadowbox addShadowboxGetMethod(@NotBlank(message = "miss param: apiUrl") String apiUrl) {
+    public Shadowbox addShadowboxGetMethod(@NotBlank(message = "apiUrl 不能为空") String apiUrl) {
         return shadowboxService.addShadowbox(apiUrl);
     }
 

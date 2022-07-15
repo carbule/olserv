@@ -12,7 +12,7 @@ import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.model.outline.Server;
 import cn.azhicloud.olserv.repository.ShadowboxRepository;
 import cn.azhicloud.olserv.service.AccountService;
-import cn.azhicloud.olserv.service.OutlineFeignClient;
+import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.service.ShadowboxService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -33,7 +33,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
 
     private final ShadowboxRepository shadowboxRepository;
 
-    private final OutlineFeignClient outlineFeignClient;
+    private final OutlineRepository outlineRepository;
 
     private final AccountService accountService;
 
@@ -43,7 +43,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
             throw new RuntimeException("repeat");
         }
 
-        Server server = outlineFeignClient.returnsInformationAboutTheServer(URI.create(apiUrl));
+        Server server = outlineRepository.returnsInformationAboutTheServer(URI.create(apiUrl));
 
         Shadowbox shadowbox = new Shadowbox();
         shadowbox.setApiUrl(apiUrl);
@@ -66,8 +66,8 @@ public class ShadowboxServiceImpl implements ShadowboxService {
                 try {
                     URI uri = URI.create(box.getApiUrl());
                     // 如果服务端有变更，托管态实体自动更新
-                    BeanUtils.copyProperties(outlineFeignClient.returnsInformationAboutTheServer(uri), box);
-                    box.setAccessKeys(outlineFeignClient.listsTheAccessKeys(uri)
+                    BeanUtils.copyProperties(outlineRepository.returnsInformationAboutTheServer(uri), box);
+                    box.setAccessKeys(outlineRepository.listsTheAccessKeys(uri)
                             .getAccessKeys());
                 } catch (Exception e) {
                     log.error("call api {} failed", box.getApiUrl(), e);
@@ -91,16 +91,16 @@ public class ShadowboxServiceImpl implements ShadowboxService {
                 try {
                     URI uri = URI.create(box.getApiUrl());
                     // 新增一个 key
-                    AccessKey accessKey = outlineFeignClient.createsANewAccessKey(uri);
+                    AccessKey accessKey = outlineRepository.createsANewAccessKey(uri);
 
                     // 设置 key 的名称
                     AccessKey renameBody = new AccessKey();
                     renameBody.setName(keyName);
                     try {
-                        outlineFeignClient.renamesAnAccessKey(uri, accessKey.getId(), renameBody);
+                        outlineRepository.renamesAnAccessKey(uri, accessKey.getId(), renameBody);
                     } catch (Exception e) {
                         // 如果设置名称失败，删除先前创建的 key
-                        outlineFeignClient.deletesAnAccessKey(uri, accessKey.getId());
+                        outlineRepository.deletesAnAccessKey(uri, accessKey.getId());
                         throw e;
                     }
                 } catch (Exception e) {

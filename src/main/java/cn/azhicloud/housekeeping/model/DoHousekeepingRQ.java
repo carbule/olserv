@@ -1,4 +1,4 @@
-package cn.azhicloud.olserv.model;
+package cn.azhicloud.housekeeping.model;
 
 import java.util.Map;
 
@@ -10,7 +10,7 @@ import lombok.Data;
  * @since 2022/6/17 13:02
  */
 @Data
-public class DoHousekeepingRequest {
+public class DoHousekeepingRQ {
 
     /**
      * service code

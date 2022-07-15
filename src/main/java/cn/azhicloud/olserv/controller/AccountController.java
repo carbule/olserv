@@ -35,6 +35,7 @@ public class AccountController {
         return accountService.listAccounts();
     }
 
+
     @GetMapping("/{accountId}/access-keys")
     public List<Shadowbox> listAccessKeys(@PathVariable String accountId) {
         return accountService.listShadowboxOwnedByAccount(accountId);

@@ -15,7 +15,7 @@ import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.repository.AccountRepository;
 import cn.azhicloud.olserv.service.AccountService;
-import cn.azhicloud.olserv.service.OutlineFeignClient;
+import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.service.ShadowboxService;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class AccountServiceImpl implements AccountService {
     @Lazy
     private ShadowboxService shadowboxService;
 
-    private final OutlineFeignClient outlineFeignClient;
+    private final OutlineRepository outlineRepository;
 
     @Value("${url-template.account-subscribe}")
     private String accountSubscribeUrlTemplate;
@@ -135,16 +135,16 @@ public class AccountServiceImpl implements AccountService {
                 try {
                     URI uri = URI.create(box.getApiUrl());
                     // 新增一个 key
-                    AccessKey accessKey = outlineFeignClient.createsANewAccessKey(uri);
+                    AccessKey accessKey = outlineRepository.createsANewAccessKey(uri);
 
                     // 设置 key 的名称
                     AccessKey renameBody = new AccessKey();
                     renameBody.setName(account.getUsername());
                     try {
-                        outlineFeignClient.renamesAnAccessKey(uri, accessKey.getId(), renameBody);
+                        outlineRepository.renamesAnAccessKey(uri, accessKey.getId(), renameBody);
                     } catch (Exception e) {
                         // 如果设置名称失败，删除先前创建的 key
-                        outlineFeignClient.deletesAnAccessKey(uri, accessKey.getId());
+                        outlineRepository.deletesAnAccessKey(uri, accessKey.getId());
                         throw e;
                     }
                 } catch (Exception e) {

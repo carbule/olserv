@@ -1,4 +1,4 @@
-package cn.azhicloud.olserv.service;
+package cn.azhicloud.olserv.repository;
 
 import java.net.URI;
 
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2022/6/3 21:03
  */
 @FeignClient(value = "outline", url = "outline")
-public interface OutlineFeignClient {
+public interface OutlineRepository {
 
     @GetMapping("/server")
     Server returnsInformationAboutTheServer(URI uri);
