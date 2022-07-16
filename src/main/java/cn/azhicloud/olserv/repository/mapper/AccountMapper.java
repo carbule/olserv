@@ -15,9 +15,20 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface AccountMapper {
 
+    /**
+     * 查询创建时间在 datTime 前的账户
+     *
+     * @param dateTime 时间
+     * @return ls
+     */
     @Select("SELECT * FROM account WHERE created_at <= #{dateTime}")
     List<Account> selectAccountsBeforeDate(LocalDateTime dateTime);
 
+    /**
+     * 查询过期的账户
+     *
+     * @return ls
+     */
     @Select("SELECT * FROM account WHERE expired_at < NOW()")
     List<Account> selectExpiredAccounts();
 }

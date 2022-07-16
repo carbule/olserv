@@ -1,4 +1,4 @@
-package cn.azhicloud.olserv.service.impl;
+package cn.azhicloud.olserv.service.impl.housekeeping;
 
 import cn.azhicloud.housekeeping.service.HouseKeepingService;
 import cn.azhicloud.task.constant.TaskTypeConst;

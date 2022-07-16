@@ -63,6 +63,9 @@ public class AccountServiceImpl implements AccountService {
         account.setCreatedAt(now);
         account.setExpiredAt(now.plusDays(30L));
         account.setUsername(username);
+        account.setMegabytesTransferred(0L);
+        // 默认分配 200G 流量
+        account.setMegabytesAllocate(200 * 1024L);
         Account saved = accountRepository.save(account);
 
         // 为新创建的用户分配 key

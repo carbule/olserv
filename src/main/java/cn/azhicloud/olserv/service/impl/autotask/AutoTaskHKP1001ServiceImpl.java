@@ -1,4 +1,4 @@
-package cn.azhicloud.olserv.service.impl;
+package cn.azhicloud.olserv.service.impl.autotask;
 
 import java.net.URI;
 import java.util.List;
@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service(TaskTypeConst.DO_HOUSEKEEPING_FOR_EXPIRED_ACCOUNT)
 @Slf4j
 @RequiredArgsConstructor
-public class AutoTaskHP1001ServiceImpl implements AutoTaskExecuteService {
+public class AutoTaskHKP1001ServiceImpl implements AutoTaskExecuteService {
 
     private final AccountMapper accountMapper;
 

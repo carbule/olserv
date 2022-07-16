@@ -35,7 +35,7 @@ spring:
     password: 123456
     url: jdbc:mysql://localhost:3306/olserv_dev?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
   activemq:
-    broker-url: tcp://101.34.23.55:61616?jms.prefetchPolicy.queuePrefetch=10
+    broker-url: tcp://101.34.23.55:61617?jms.prefetchPolicy.queuePrefetch=10
 # 订阅模版
 url-template:
   account-subscribe: http://127.0.0.1:8080/olserv/account/{accountId}/access-keys/subscribe

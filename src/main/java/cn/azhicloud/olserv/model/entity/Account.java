@@ -19,14 +19,39 @@ public class Account {
     @Id
     private String id;
 
+    /**
+     * 创建时间
+     */
     private LocalDateTime createdAt;
 
+    /**
+     * 过期时间
+     */
     private LocalDateTime expiredAt;
 
+    /**
+     * 用户名
+     */
     private String username;
 
+    /**
+     * 最后拉取订阅时间
+     */
     private LocalDateTime lastAccess;
 
+    /**
+     * 已使用的兆字节数
+     */
+    private Long megabytesTransferred;
+
+    /**
+     * 分配的兆字节流量
+     */
+    private Long megabytesAllocate;
+
+    /**
+     * 订阅地址
+     */
     @Transient
     private String subscribe;
 }

@@ -4,6 +4,7 @@ import java.net.URI;
 
 import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.model.outline.AccessKeys;
+import cn.azhicloud.olserv.model.outline.BytesTransferred;
 import cn.azhicloud.olserv.model.outline.Server;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -30,4 +31,7 @@ public interface OutlineRepository {
 
     @PutMapping("/access-keys/{id}/name")
     void renamesAnAccessKey(URI uri, @PathVariable String id, @RequestBody AccessKey key);
+
+    @GetMapping("/metrics/transfer")
+    BytesTransferred returnsTheDataTransferredPerAccessKey(URI uri);
 }

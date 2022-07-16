@@ -1,6 +1,7 @@
 package cn.azhicloud.olserv.model.outline;
 
 import java.io.Serializable;
+import java.net.URI;
 
 import lombok.Data;
 
@@ -40,4 +41,14 @@ public class AccessKey implements Serializable {
      * access-key 链接
      */
     private String accessUrl;
+
+    /**
+     * 使用流量字节数
+     */
+    private Long bytesTransferred;
+
+    /**
+     * 管理 url
+     */
+    private URI apiUri;
 }
