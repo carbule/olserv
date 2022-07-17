@@ -45,17 +45,21 @@ public class AutoTaskHKP1002ServiceImpl implements AutoTaskExecuteService {
 
         List<AccessKey> allKeys = new ArrayList<>();
         for (Shadowbox shadowbox : shadowboxes) {
-            URI uri = URI.create(shadowbox.getApiUrl());
-            AccessKeys accessKeys = outlineRepository.listsTheAccessKeys(uri);
-            BytesTransferred bytesTransferred = outlineRepository.returnsTheDataTransferredPerAccessKey(uri);
+            try {
+                URI uri = URI.create(shadowbox.getApiUrl());
+                AccessKeys accessKeys = outlineRepository.listsTheAccessKeys(uri);
+                BytesTransferred bytesTransferred = outlineRepository.returnsTheDataTransferredPerAccessKey(uri);
 
-            // 根据 keyId 获取使用流量数
-            accessKeys.getAccessKeys().forEach(k -> {
-                k.setApiUri(uri);
-                k.setBytesTransferred(bytesTransferred.getBytesTransferredByUserId()
-                        .getOrDefault(k.getId(), 0L));
-            });
-            allKeys.addAll(accessKeys.getAccessKeys());
+                // 根据 keyId 获取使用流量数
+                accessKeys.getAccessKeys().forEach(k -> {
+                    k.setApiUri(uri);
+                    k.setBytesTransferred(bytesTransferred.getBytesTransferredByUserId()
+                            .getOrDefault(k.getId(), 0L));
+                });
+                allKeys.addAll(accessKeys.getAccessKeys());
+            } catch (Exception e) {
+                log.error("obtain shadowbox bytes transferred failed", e);
+            }
         }
 
         for (Account account : accounts) {

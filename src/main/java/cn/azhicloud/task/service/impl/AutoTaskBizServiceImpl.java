@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
@@ -41,21 +42,22 @@ public class AutoTaskBizServiceImpl implements AutoTaskBizService {
             throw BizException.format("任务 %s 不存在", taskNo);
         }
 
-        AutoTaskCfg taskType = autoTaskCfgRepository.findByTaskType(task.getTaskType());
-        if (taskType == null) {
-            throw BizException.format("不支持该任务类型：%s", task.getTaskType());
-        }
-
         // 更新任务为处理中
         task.setStatus(TaskStatus.PROCESSING.value);
         task.setExecutor(executor);
         task.setExecuteStartAt(LocalDateTime.now());
         autoTaskRepository.save(task);
 
-        AutoTaskExecuteService executeService = context.getBean(taskType.getExecServiceId(),
-                AutoTaskExecuteService.class);
-
         try {
+            AutoTaskCfg taskType = autoTaskCfgRepository.findByTaskType(task.getTaskType());
+            if (taskType == null) {
+                throw BizException.format("不支持该任务类型：%s", task.getTaskType());
+            }
+
+            AutoTaskExecuteService executeService = context.getBean(taskType.getExecServiceId(),
+                    AutoTaskExecuteService.class);
+
+            // 开始执行
             executeService.execute(task.getTaskData());
         } catch (Exception e) {
             log.error("auto task execute failed", e);
@@ -69,7 +71,11 @@ public class AutoTaskBizServiceImpl implements AutoTaskBizService {
         autoTaskRepository.save(task);
     }
 
+    /**
+     * 使用异步，防止处理时间过长导致调度任务超时
+     */
     @Override
+    @Async
     public void executeByJob() {
         List<AutoTask> tasks = autoTaskRepository.findByStatus(TaskStatus.PENDING.value);
 

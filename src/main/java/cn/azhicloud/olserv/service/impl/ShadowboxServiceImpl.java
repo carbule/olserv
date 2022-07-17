@@ -8,12 +8,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import cn.azhicloud.olserv.model.entity.Shadowbox;
-import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.model.outline.Server;
+import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.repository.ShadowboxRepository;
 import cn.azhicloud.olserv.service.AccountService;
-import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.service.ShadowboxService;
+import cn.azhicloud.olserv.service.impl.autotask.bo.TaskTASK2001BO;
+import cn.azhicloud.task.constant.TaskTypeConst;
+import cn.azhicloud.task.service.AutoTaskBaseService;
+import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +40,8 @@ public class ShadowboxServiceImpl implements ShadowboxService {
 
     private final AccountService accountService;
 
+    private final AutoTaskBaseService autoTaskBaseService;
+
     @Override
     public Shadowbox addShadowbox(String apiUrl) {
         if (shadowboxRepository.existsById(apiUrl)) {
@@ -48,9 +53,13 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         Shadowbox shadowbox = new Shadowbox();
         shadowbox.setApiUrl(apiUrl);
         BeanUtils.copyProperties(server, shadowbox);
-        Shadowbox saved = shadowboxRepository.save(shadowbox);
-        accountService.createAccessKeyForAllAccounts(saved);
-        return saved;
+        shadowboxRepository.save(shadowbox);
+
+        TaskTASK2001BO taskBO = new TaskTASK2001BO();
+        taskBO.setApiUrl(shadowbox.getApiUrl());
+        autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.ALLOCATE_SHADOWBOX_TO_ACCOUNTS,
+                JSON.toJSONString(taskBO));
+        return shadowbox;
     }
 
     @Override
@@ -80,35 +89,4 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         return shadowboxes;
     }
 
-    @Override
-    @SneakyThrows
-    public void createAccessKeyForAllShadowbox(String keyName) {
-        List<Shadowbox> shadowboxes = shadowboxRepository.findAll();
-        CountDownLatch latch = new CountDownLatch(shadowboxes.size());
-        ExecutorService executor = Executors.newCachedThreadPool();
-        shadowboxes.forEach(box -> {
-            executor.execute(() -> {
-                try {
-                    URI uri = URI.create(box.getApiUrl());
-                    // 新增一个 key
-                    AccessKey accessKey = outlineRepository.createsANewAccessKey(uri);
-
-                    // 设置 key 的名称
-                    AccessKey renameBody = new AccessKey();
-                    renameBody.setName(keyName);
-                    try {
-                        outlineRepository.renamesAnAccessKey(uri, accessKey.getId(), renameBody);
-                    } catch (Exception e) {
-                        // 如果设置名称失败，删除先前创建的 key
-                        outlineRepository.deletesAnAccessKey(uri, accessKey.getId());
-                        throw e;
-                    }
-                } catch (Exception e) {
-                    log.error("call api {} failed", box.getApiUrl(), e);
-                }
-                latch.countDown();
-            });
-        });
-        latch.await();
-    }
 }

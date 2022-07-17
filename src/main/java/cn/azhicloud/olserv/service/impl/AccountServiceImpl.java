@@ -1,25 +1,24 @@
 package cn.azhicloud.olserv.service.impl;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.repository.AccountRepository;
-import cn.azhicloud.olserv.service.AccountService;
 import cn.azhicloud.olserv.repository.OutlineRepository;
+import cn.azhicloud.olserv.service.AccountService;
 import cn.azhicloud.olserv.service.ShadowboxService;
+import cn.azhicloud.olserv.service.impl.autotask.bo.TaskTASK1001BO;
+import cn.azhicloud.task.constant.TaskTypeConst;
+import cn.azhicloud.task.service.AutoTaskBaseService;
+import com.alibaba.fastjson.JSON;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +45,8 @@ public class AccountServiceImpl implements AccountService {
 
     private final OutlineRepository outlineRepository;
 
+    private final AutoTaskBaseService autoTaskBaseService;
+
     @Value("${url-template.account-subscribe}")
     private String accountSubscribeUrlTemplate;
 
@@ -66,12 +67,16 @@ public class AccountServiceImpl implements AccountService {
         account.setMegabytesTransferred(0L);
         // 默认分配 200G 流量
         account.setMegabytesAllocate(200 * 1024L);
-        Account saved = accountRepository.save(account);
+        accountRepository.save(account);
+
+        account.setSubscribe(accountSubscribeUrlTemplate.replace("{accountId}", account.getId()));
 
         // 为新创建的用户分配 key
-        shadowboxService.createAccessKeyForAllShadowbox(saved.getUsername());
-        saved.setSubscribe(accountSubscribeUrlTemplate.replace("{accountId}", saved.getId()));
-        return saved;
+        TaskTASK1001BO taskBO = new TaskTASK1001BO();
+        taskBO.setAccountId(account.getId());
+        autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.ALLOCATE_ACCOUNT_TO_SHADOWBOXES,
+                JSON.toJSONString(taskBO));
+        return account;
     }
 
     @Override
@@ -126,36 +131,4 @@ public class AccountServiceImpl implements AccountService {
         return Base64Utils.encodeToUrlSafeString(joiner.toString().getBytes(StandardCharsets.UTF_8));
     }
 
-    @Override
-    @SneakyThrows
-    @Transactional
-    public void createAccessKeyForAllAccounts(Shadowbox box) {
-        List<Account> accounts = accountRepository.findAll();
-        CountDownLatch latch = new CountDownLatch(accounts.size());
-        ExecutorService executor = Executors.newCachedThreadPool();
-        accounts.forEach(account -> {
-            executor.execute(() -> {
-                try {
-                    URI uri = URI.create(box.getApiUrl());
-                    // 新增一个 key
-                    AccessKey accessKey = outlineRepository.createsANewAccessKey(uri);
-
-                    // 设置 key 的名称
-                    AccessKey renameBody = new AccessKey();
-                    renameBody.setName(account.getUsername());
-                    try {
-                        outlineRepository.renamesAnAccessKey(uri, accessKey.getId(), renameBody);
-                    } catch (Exception e) {
-                        // 如果设置名称失败，删除先前创建的 key
-                        outlineRepository.deletesAnAccessKey(uri, accessKey.getId());
-                        throw e;
-                    }
-                } catch (Exception e) {
-                    log.error("call api {} failed", box.getApiUrl(), e);
-                }
-                latch.countDown();
-            });
-        });
-        latch.await();
-    }
 }
