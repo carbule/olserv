@@ -15,11 +15,21 @@ spring:
     in-memory: false
     packages:
       trust-all: false
+  mail:
+    host: smtp.qiye.aliyun.com
+    port: 465
+    protocol: smtps
+    username: notifier@azhicloud.cn
+    password: password123KBL
+    from: notifier@azhicloud.cn
 server:
   servlet:
     encoding:
       force: true
     context-path: /olserv
+alarm:
+  mail:
+    receiver: carbule.bar@gmail.com
 ---
 #### dev ####
 spring:

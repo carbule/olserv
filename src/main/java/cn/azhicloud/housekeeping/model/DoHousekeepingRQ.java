@@ -2,6 +2,8 @@ package cn.azhicloud.housekeeping.model;
 
 import java.util.Map;
 
+import javax.validation.constraints.NotBlank;
+
 import lombok.Data;
 
 /**
@@ -15,6 +17,7 @@ public class DoHousekeepingRQ {
     /**
      * service code
      */
+    @NotBlank(message = "serviceCode 不能为空")
     private String serviceCode;
 
     /**

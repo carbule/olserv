@@ -4,6 +4,7 @@ import cn.azhicloud.housekeeping.model.DoHousekeepingRQ;
 import cn.azhicloud.housekeeping.service.HouseKeepingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,7 @@ public class HouseKeepingController {
     private final ApplicationContext context;
 
     @PostMapping("/do")
-    public Boolean doHousekeeping(@RequestBody DoHousekeepingRQ request) {
+    public Boolean doHousekeeping(@RequestBody @Validated DoHousekeepingRQ request) {
         HouseKeepingService houseKeepingService = context.getBean(request.getServiceCode(),
                 HouseKeepingService.class);
         if (request.getParams() == null) {
