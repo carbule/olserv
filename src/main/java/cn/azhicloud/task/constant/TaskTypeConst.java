@@ -31,4 +31,9 @@ public interface TaskTypeConst {
      * 为所有的 Account 分配 Key
      */
     String ALLOCATE_SHADOWBOX_TO_ACCOUNTS = "TASK2001";
+
+    /**
+     * 账户获取订阅发送通知
+     */
+    String ACCOUNT_PULL_SUBSCRIBE_NOTICE = "TASK2002";
 }

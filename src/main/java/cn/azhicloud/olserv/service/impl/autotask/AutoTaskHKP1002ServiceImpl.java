@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import cn.azhicloud.infra.helper.MailHelper;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
@@ -36,6 +37,8 @@ public class AutoTaskHKP1002ServiceImpl implements AutoTaskExecuteService {
     private final ShadowboxRepository shadowboxRepository;
 
     private final OutlineRepository outlineRepository;
+
+    private final MailHelper mailHelper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -87,6 +90,12 @@ public class AutoTaskHKP1002ServiceImpl implements AutoTaskExecuteService {
                         log.error("delete key failed", e);
                     }
                 });
+            }
+
+            // 如果账户只剩 1G 流量，发送预警邮件
+            if ((account.getMegabytesAllocate() - megabytesTransferred) <= 1024) {
+                mailHelper.sendAlarmMail("TRAFFIC WARNING",
+                        String.format("account [%s] used out of traffic", account.getUsername()));
             }
         }
     }

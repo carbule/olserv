@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import cn.azhicloud.infra.exception.BizException;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
@@ -14,6 +15,7 @@ import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.service.AccountService;
 import cn.azhicloud.olserv.service.ShadowboxService;
 import cn.azhicloud.olserv.service.impl.autotask.bo.TaskTASK1001BO;
+import cn.azhicloud.olserv.service.impl.autotask.bo.TaskTASK2002BO;
 import cn.azhicloud.task.constant.TaskTypeConst;
 import cn.azhicloud.task.service.AutoTaskBaseService;
 import com.alibaba.fastjson.JSON;
@@ -91,7 +93,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public List<Shadowbox> listShadowboxOwnedByAccount(String id) {
         Account account = accountRepository.findById(id).orElseThrow(() ->
-                new RuntimeException("account not exist"));
+                BizException.format("账户不存在"));
         account.setLastAccess(LocalDateTime.now());
 
         List<Shadowbox> boxes = shadowboxService.listShadowboxes();
@@ -109,6 +111,12 @@ public class AccountServiceImpl implements AccountService {
             }
         }
         boxes.sort(Comparator.comparing(Shadowbox::getName));
+
+        // 发送通知邮件
+        TaskTASK2002BO taskBO = new TaskTASK2002BO();
+        taskBO.setAccountId(account.getId());
+        autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.ACCOUNT_PULL_SUBSCRIBE_NOTICE,
+                JSON.toJSONString(taskBO));
         return boxes;
     }
 

@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import cn.azhicloud.infra.helper.MailHelper;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
@@ -38,6 +39,8 @@ public class AutoTaskHKP1001ServiceImpl implements AutoTaskExecuteService {
 
     private final AccountService accountService;
 
+    private final MailHelper mailHelper;
+
     @Override
     @Transactional
     public void execute(String taskData) {
@@ -48,6 +51,8 @@ public class AutoTaskHKP1001ServiceImpl implements AutoTaskExecuteService {
                     expiredAccounts.stream().map(Account::getId)
                             .collect(Collectors.toList())
             );
+            // 发送邮件通知
+            sendAccountExpiredMail(expiredAccounts);
             return;
         }
         log.info("No expired accounts.");
@@ -60,5 +65,14 @@ public class AutoTaskHKP1001ServiceImpl implements AutoTaskExecuteService {
                 outlineRepository.deletesAnAccessKey(URI.create(box.getApiUrl()), key.getId());
             }
         }
+    }
+
+    private void sendAccountExpiredMail(List<Account> expiredAccount) {
+        mailHelper.sendAlarmMail("ACCOUNT EXPIRED",
+                "accounts [" +
+                        expiredAccount.stream()
+                                .map(Account::getUsername)
+                                .collect(Collectors.joining(", "))
+                        + "] has expired");
     }
 }
