@@ -3,7 +3,7 @@ package cn.azhicloud.task.service.impl;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import cn.azhicloud.task.constant.ActiveMQQueueConst;
 import cn.azhicloud.task.constant.TaskStatus;
@@ -27,6 +27,10 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @RequiredArgsConstructor
 public class AutoTaskBaseServiceImpl implements AutoTaskBaseService {
 
+    private static final AtomicLong SEQ = new AtomicLong(0L);
+
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmss");
+
     private final AutoTaskRepository autoTaskRepository;
 
     private final JmsMessagingTemplate jmsMessagingTemplate;
@@ -35,13 +39,12 @@ public class AutoTaskBaseServiceImpl implements AutoTaskBaseService {
     @Transactional
     public String createAutoTask(String taskType, String taskData) {
         AutoTask task = new AutoTask();
-        task.setTaskNo("");
+        task.setTaskNo(getTaskNo());
         task.setTaskType(taskType);
         task.setTaskData(taskData);
         task.setStatus(TaskStatus.PENDING.value);
 
         autoTaskRepository.save(task);
-        task.setTaskNo(getTaskNo(task.getTaskId()));
         return task.getTaskNo();
     }
 
@@ -61,14 +64,8 @@ public class AutoTaskBaseServiceImpl implements AutoTaskBaseService {
     }
 
     private String getTaskNo() {
-        return UUID.randomUUID().toString().replace("-", "");
+        return LocalDateTime.now().format(FORMATTER)
+                + new DecimalFormat("0000")
+                .format(SEQ.getAndIncrement() % 10000);
     }
-
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmss");
-
-    private String getTaskNo(Long id) {
-        return FORMATTER.format(LocalDateTime.now()) +
-                new DecimalFormat("0000").format(id % 10000);
-    }
-
 }
