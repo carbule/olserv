@@ -1,5 +1,7 @@
 package cn.azhicloud.olserv.service.impl.autotask.bo;
 
+import java.util.List;
+
 import lombok.Data;
 
 /**
@@ -14,4 +16,9 @@ public class TaskTASK2002BO {
      * 账户 ID
      */
     private String accountId;
+
+    /**
+     * 节点
+     */
+    private List<String> nodes;
 }

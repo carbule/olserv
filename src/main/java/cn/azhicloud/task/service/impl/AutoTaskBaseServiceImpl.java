@@ -64,8 +64,7 @@ public class AutoTaskBaseServiceImpl implements AutoTaskBaseService {
     }
 
     private String getTaskNo() {
-        return LocalDateTime.now().format(FORMATTER)
-                + new DecimalFormat("0000")
-                .format(SEQ.getAndIncrement() % 10000);
+        return LocalDateTime.now().format(FORMATTER) +
+                new DecimalFormat("0000").format(SEQ.getAndIncrement() % 10000);
     }
 }

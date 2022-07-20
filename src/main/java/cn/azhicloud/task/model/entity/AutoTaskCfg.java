@@ -1,8 +1,7 @@
 package cn.azhicloud.task.model.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import java.time.LocalDateTime;
+import javax.persistence.*;
 
 import cn.azhicloud.task.constant.TaskTypeConst;
 import lombok.Data;
@@ -16,11 +15,14 @@ import lombok.Data;
 @Data
 public class AutoTaskCfg {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     /**
      * 任务类型 {@link TaskTypeConst}
      */
-    @Id
-    @Column(length = 10)
+    @Column(unique = true, nullable = false, length = 10)
     private String taskType;
 
     /**
@@ -32,6 +34,9 @@ public class AutoTaskCfg {
     /**
      * 任务实现
      */
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, unique = true, length = 50)
     private String execServiceId;
+
+    @Column(columnDefinition = "datetime default current_timestamp")
+    private LocalDateTime createdAt;
 }

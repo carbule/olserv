@@ -33,7 +33,7 @@ public class AutoTask {
     /**
      * 任务编号
      */
-    @Column(nullable = false, length = 36)
+    @Column(nullable = false, unique = true, length = 36)
     private String taskNo;
 
     /**

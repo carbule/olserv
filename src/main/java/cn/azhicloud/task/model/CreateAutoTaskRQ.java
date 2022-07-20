@@ -15,6 +15,5 @@ public class CreateAutoTaskRQ {
     @NotBlank(message = "taskType 不能为空")
     private String taskType;
 
-    @NotBlank(message = "taskData 不能为空")
     private String taskData;
 }

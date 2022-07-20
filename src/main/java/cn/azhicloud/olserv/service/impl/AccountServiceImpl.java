@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import cn.azhicloud.infra.exception.BizException;
 import cn.azhicloud.olserv.model.entity.Account;
@@ -115,6 +116,7 @@ public class AccountServiceImpl implements AccountService {
         // 发送通知邮件
         TaskTASK2002BO taskBO = new TaskTASK2002BO();
         taskBO.setAccountId(account.getId());
+        taskBO.setNodes(boxes.stream().map(Shadowbox::getName).collect(Collectors.toList()));
         autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.ACCOUNT_PULL_SUBSCRIBE_NOTICE,
                 JSON.toJSONString(taskBO));
         return boxes;

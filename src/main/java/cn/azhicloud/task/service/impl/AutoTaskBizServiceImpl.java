@@ -16,7 +16,6 @@ import cn.azhicloud.task.service.AutoTaskExecuteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -30,9 +29,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 public class AutoTaskBizServiceImpl implements AutoTaskBizService {
-
-    @Value("${alarm.mail.receiver}")
-    private String alarmMailReceiver;
 
     private final AutoTaskRepository autoTaskRepository;
 
@@ -69,7 +65,7 @@ public class AutoTaskBizServiceImpl implements AutoTaskBizService {
         } catch (Exception e) {
             log.error("auto task execute failed", e);
             updateTaskToFailed(task, e);
-            sendAlarmMail("AUTO TASK EXECUTE FAILED", ExceptionUtils.getStackTrace(e));
+            mailHelper.sendAlarmMail("AUTO TASK EXECUTE FAILED", ExceptionUtils.getStackTrace(e));
             return;
         }
 
@@ -105,13 +101,5 @@ public class AutoTaskBizServiceImpl implements AutoTaskBizService {
         task.setFailedReason(getExMessage(e));
         task.setExecuteEndAt(LocalDateTime.now());
         autoTaskRepository.save(task);
-    }
-
-    private void sendAlarmMail(String subject, String content) {
-        try {
-            mailHelper.sendSimpleMail(alarmMailReceiver, subject, content);
-        } catch (Exception e) {
-            log.error("send alarm mail failed", e);
-        }
     }
 }

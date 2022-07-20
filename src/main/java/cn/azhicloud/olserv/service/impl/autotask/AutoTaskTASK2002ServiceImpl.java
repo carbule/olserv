@@ -10,6 +10,7 @@ import cn.azhicloud.task.service.AutoTaskExecuteService;
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +23,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AutoTaskTASK2002ServiceImpl implements AutoTaskExecuteService {
 
+    @Value("${alarm.mail.receiver}")
+    private String alarmMailReceiver;
+
     private final MailHelper mailHelper;
 
     private final AccountRepository accountRepository;
@@ -32,7 +36,8 @@ public class AutoTaskTASK2002ServiceImpl implements AutoTaskExecuteService {
         Account account = accountRepository.findById(taskBO.getAccountId())
                 .orElseThrow(() -> new BizException("账户不存在"));
 
-        mailHelper.sendAlarmMail("ACCOUNT PULL SUBSCRIBE",
-                String.format("account [%s] pull subscribe", account.getUsername()));
+        mailHelper.sendSimpleMail(alarmMailReceiver, "ACCOUNT PULL SUBSCRIBE",
+                String.format("Account [%s] pull subscribe, has nodes: %s", account.getUsername(),
+                        String.join(", ", taskBO.getNodes())));
     }
 }
