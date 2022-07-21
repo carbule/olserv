@@ -1,5 +1,6 @@
 package cn.azhicloud.olserv.model.entity;
 
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -31,5 +32,5 @@ public class Shadowbox {
     private Integer portForNewAccessKeys;
 
     @Transient
-    private List<AccessKey> accessKeys;
+    private List<AccessKey> accessKeys = Collections.emptyList();
 }

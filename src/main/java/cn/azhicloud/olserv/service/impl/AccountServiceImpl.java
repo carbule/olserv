@@ -141,4 +141,24 @@ public class AccountServiceImpl implements AccountService {
         return Base64Utils.encodeToUrlSafeString(joiner.toString().getBytes(StandardCharsets.UTF_8));
     }
 
+    @Override
+    @Transactional
+    public void trafficReset(String username) {
+        Account account = accountRepository.findByUsername(username);
+        if (account == null) {
+            throw BizException.format("账户 %s 不存在", username);
+        }
+
+        // 只有流量用尽才可以重置
+        if (account.getMegabytesAllocate() <= account.getMegabytesTransferred()) {
+            account.setMegabytesTransferred(0L);
+
+            // 发布自动任务，为账户重新分配节点
+            TaskTASK1001BO taskBO = new TaskTASK1001BO();
+            taskBO.setAccountId(account.getId());
+            autoTaskBaseService.createAutoTask(TaskTypeConst.ALLOCATE_ACCOUNT_TO_SHADOWBOXES,
+                    JSON.toJSONString(taskBO));
+        }
+    }
+
 }

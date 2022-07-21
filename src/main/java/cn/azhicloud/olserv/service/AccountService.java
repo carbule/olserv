@@ -19,4 +19,6 @@ public interface AccountService {
     List<Shadowbox> listShadowboxOwnedByAccount(String id);
 
     String getAccessKeysSubscribe(String id);
+
+    void trafficReset(String username);
 }

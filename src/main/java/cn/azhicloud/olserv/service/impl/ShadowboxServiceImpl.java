@@ -1,7 +1,6 @@
 package cn.azhicloud.olserv.service.impl;
 
 import java.net.URI;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -69,8 +68,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         List<Shadowbox> shadowboxes = shadowboxRepository.findAll();
         CountDownLatch latch = new CountDownLatch(shadowboxes.size());
         ExecutorService executor = Executors.newCachedThreadPool();
-        for (Iterator<Shadowbox> it = shadowboxes.iterator(); it.hasNext(); ) {
-            Shadowbox box = it.next();
+        for (Shadowbox box : shadowboxes) {
             executor.execute(() -> {
                 try {
                     URI uri = URI.create(box.getApiUrl());
@@ -80,7 +78,6 @@ public class ShadowboxServiceImpl implements ShadowboxService {
                             .getAccessKeys());
                 } catch (Exception e) {
                     log.error("call api {} failed", box.getApiUrl(), e);
-                    it.remove();
                 }
                 latch.countDown();
             });

@@ -30,6 +30,12 @@ public class AccountController {
         return accountService.createAccount(username);
     }
 
+    @GetMapping("/{username}/reset")
+    public Boolean trafficReset(@PathVariable String username) {
+        accountService.trafficReset(username);
+        return Boolean.TRUE;
+    }
+
     @GetMapping("/list")
     public List<Account> listAccount() {
         return accountService.listAccounts();

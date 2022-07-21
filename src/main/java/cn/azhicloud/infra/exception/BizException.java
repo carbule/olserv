@@ -60,7 +60,7 @@ public class BizException extends RuntimeException {
      * @param args       参数
      * @return BizException
      */
-    public static BizException format1(String bizCode, String bizMessage, Object... args) {
+    public static BizException _format(String bizCode, String bizMessage, Object... args) {
         return new BizException(bizCode, String.format(bizMessage, args));
     }
 }
