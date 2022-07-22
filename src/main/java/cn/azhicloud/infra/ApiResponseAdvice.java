@@ -13,6 +13,7 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
@@ -63,6 +64,11 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @ExceptionHandler
     public ApiResponse handle(HttpRequestMethodNotSupportedException ex) {
+        return new ApiResponse(API_RESPONSE_CODE_WARN, ex.getMessage());
+    }
+
+    @ExceptionHandler
+    public ApiResponse handle(MissingServletRequestParameterException ex) {
         return new ApiResponse(API_RESPONSE_CODE_WARN, ex.getMessage());
     }
 

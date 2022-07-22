@@ -1,5 +1,6 @@
 package cn.azhicloud.infra.helper;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,30 +27,36 @@ public class MailHelper {
     private final JavaMailSender mailSender;
 
     /**
-     * 发送普通邮件
+     * 发送订阅通知邮件
      *
-     * @param to      收件人
-     * @param subject 主题
+     * @param to      收件人（订阅通知<notify@azhicloud.cn>）
+     * @param subject 主题（subject (nanoid)）
      * @param content 内容
      */
-    public void sendSimpleMail(String to, String subject, String content) {
+    public void sendSubscribeNotice(String to, String subject, String content) {
+        log.info("Send mail to [{}] with subject [{}}] and content [{}].", to, subject, content);
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(mailFrom);
+        message.setFrom("订阅通知" + "<" + mailFrom + ">");
         message.setTo(to);
-        message.setSubject(subject);
+        message.setSubject(subject + " (" + NanoIdUtils.randomNanoId() + ")");
         message.setText(content);
         mailSender.send(message);
     }
 
     /**
-     * 发送预警邮件
+     * 发送系统预警邮件
      *
      * @param subject 主题
      * @param content 内容
      */
     public void sendAlarmMail(String subject, String content) {
         try {
-            sendSimpleMail(alarmMailReceiver, subject, content);
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("系统预警" + "<" + mailFrom + ">");
+            message.setTo(alarmMailReceiver);
+            message.setSubject(subject + " (" + NanoIdUtils.randomNanoId() + ")");
+            message.setText(content);
+            mailSender.send(message);
         } catch (Exception e) {
             log.error("send alarm mail failed", e);
         }

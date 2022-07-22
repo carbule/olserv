@@ -2,6 +2,7 @@ package cn.azhicloud.olserv.service;
 
 import java.util.List;
 
+import cn.azhicloud.olserv.model.CreateAccountRQ;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 
@@ -12,7 +13,7 @@ import cn.azhicloud.olserv.model.entity.Shadowbox;
  */
 public interface AccountService {
 
-    Account createAccount(String username);
+    Account createAccount(CreateAccountRQ rq);
 
     List<Account> listAccounts();
 

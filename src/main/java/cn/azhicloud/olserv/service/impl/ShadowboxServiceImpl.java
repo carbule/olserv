@@ -6,6 +6,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import cn.azhicloud.infra.exception.BizException;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.Server;
 import cn.azhicloud.olserv.repository.OutlineRepository;
@@ -44,7 +45,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
     @Override
     public Shadowbox addShadowbox(String apiUrl) {
         if (shadowboxRepository.existsById(apiUrl)) {
-            throw new RuntimeException("repeat");
+            throw new BizException("服务器已存在");
         }
 
         Server server = outlineRepository.returnsInformationAboutTheServer(URI.create(apiUrl));

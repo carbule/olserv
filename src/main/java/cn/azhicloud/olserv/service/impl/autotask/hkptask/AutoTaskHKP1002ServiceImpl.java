@@ -1,4 +1,4 @@
-package cn.azhicloud.olserv.service.impl.autotask;
+package cn.azhicloud.olserv.service.impl.autotask.hkptask;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import cn.azhicloud.infra.helper.MailHelper;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
@@ -15,8 +14,12 @@ import cn.azhicloud.olserv.model.outline.BytesTransferred;
 import cn.azhicloud.olserv.repository.AccountRepository;
 import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.repository.ShadowboxRepository;
+import cn.azhicloud.olserv.service.impl.autotask.bo.TaskNOTICE1003BO;
+import cn.azhicloud.olserv.service.impl.autotask.bo.TaskNOTICE1005BO;
 import cn.azhicloud.task.constant.TaskTypeConst;
+import cn.azhicloud.task.service.AutoTaskBaseService;
 import cn.azhicloud.task.service.AutoTaskExecuteService;
+import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,7 +41,7 @@ public class AutoTaskHKP1002ServiceImpl implements AutoTaskExecuteService {
 
     private final OutlineRepository outlineRepository;
 
-    private final MailHelper mailHelper;
+    private final AutoTaskBaseService autoTaskBaseService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -90,12 +93,24 @@ public class AutoTaskHKP1002ServiceImpl implements AutoTaskExecuteService {
                         log.error("delete key failed", e);
                     }
                 });
+                // 通知用户流量已用尽
+                {
+                    TaskNOTICE1005BO newTaskBO = new TaskNOTICE1005BO();
+                    newTaskBO.setAccountId(account.getId());
+                    autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.NOTICE_ACCOUNT_TRAFFIC_OVERED,
+                            JSON.toJSONString(newTaskBO));
+                }
+                return;
             }
 
-            // 如果账户只剩 1G 流量，发送预警邮件
+            // 如果账户只剩 1G 流量，发送订阅通知
             if ((account.getMegabytesAllocate() - megabytesTransferred) <= 1024) {
-                mailHelper.sendAlarmMail("TRAFFIC WARNING",
-                        String.format("account [%s] used out of traffic", account.getUsername()));
+                {
+                    TaskNOTICE1003BO taskBO = new TaskNOTICE1003BO();
+                    taskBO.setAccountId(account.getId());
+                    autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.NOTICE_ACCOUNT_TRAFFIC_WARNING,
+                            JSON.toJSONString(taskBO));
+                }
             }
         }
     }

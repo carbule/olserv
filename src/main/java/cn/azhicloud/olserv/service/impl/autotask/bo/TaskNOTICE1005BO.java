@@ -5,15 +5,11 @@ import lombok.Data;
 /**
  * @author zhouzhifeng
  * @version 1.0
- * @since 2022/7/17 11:38
+ * @see cn.azhicloud.task.constant.TaskTypeConst#NOTICE_ACCOUNT_TRAFFIC_OVERED
+ * @since 2022/7/22 15:26
  */
 @Data
-public class TaskTASK1001BO {
-
-    /**
-     * 是否是重置流量操作
-     */
-    private boolean resetTraffic = false;
+public class TaskNOTICE1005BO {
 
     /**
      * 账户 ID

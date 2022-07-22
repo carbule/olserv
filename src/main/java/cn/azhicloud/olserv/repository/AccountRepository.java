@@ -1,5 +1,7 @@
 package cn.azhicloud.olserv.repository;
 
+import java.util.List;
+
 import cn.azhicloud.olserv.model.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,4 +13,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AccountRepository extends JpaRepository<Account, String> {
 
     Account findByUsername(String username);
+
+    List<Account> findByEmailNotNull();
+
+    Account findByUsernameOrEmail(String username, String email);
 }

@@ -18,7 +18,7 @@ public class TaskTASK2002BO {
     private String accountId;
 
     /**
-     * 节点
+     * 节点名称
      */
     private List<String> nodes;
 }

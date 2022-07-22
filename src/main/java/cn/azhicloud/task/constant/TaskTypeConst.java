@@ -36,4 +36,34 @@ public interface TaskTypeConst {
      * 账户获取订阅发送通知
      */
     String ACCOUNT_PULL_SUBSCRIBE_NOTICE = "TASK2002";
+
+    /**
+     * 通知用户账户已经创建
+     */
+    String NOTICE_ACCOUNT_CREATED = "NOTICE1001";
+
+    /**
+     * 通知所有用户已经分配了新的 Key
+     */
+    String NOTICE_ACCOUNT_ALLOCATE_NEW_KEY = "NOTICE1002";
+
+    /**
+     * 通知用户流量即将用尽
+     */
+    String NOTICE_ACCOUNT_TRAFFIC_WARNING = "NOTICE1003";
+
+    /**
+     * 通知用户账户已过期
+     */
+    String NOTICE_ACCOUNT_EXPIRED = "NOTICE1004";
+
+    /**
+     * 通知用户流量已经用尽
+     */
+    String NOTICE_ACCOUNT_TRAFFIC_OVERED = "NOTICE1005";
+
+    /**
+     * 通知用户流量已重置
+     */
+    String NOTICE_ACCOUNT_TRAFFIC_RESET = "NOTICE1006";
 }

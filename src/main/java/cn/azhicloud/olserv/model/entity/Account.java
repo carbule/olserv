@@ -1,6 +1,7 @@
 package cn.azhicloud.olserv.model.entity;
 
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
@@ -33,6 +34,12 @@ public class Account {
      * 用户名
      */
     private String username;
+
+    /**
+     * 邮箱
+     */
+    @Column(unique = true, nullable = false)
+    private String email;
 
     /**
      * 最后拉取订阅时间

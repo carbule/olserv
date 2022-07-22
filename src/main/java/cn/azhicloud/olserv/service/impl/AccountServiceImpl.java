@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import cn.azhicloud.infra.exception.BizException;
+import cn.azhicloud.olserv.model.CreateAccountRQ;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
@@ -55,10 +56,10 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public Account createAccount(String username) {
-        Account existed = accountRepository.findByUsername(username);
+    public Account createAccount(CreateAccountRQ rq) {
+        Account existed = accountRepository.findByUsernameOrEmail(rq.getUsername(), rq.getEmail());
         if (existed != null) {
-            throw new RuntimeException("repeat");
+            throw new BizException("账户名或者邮箱重复");
         }
 
         Account account = new Account();
@@ -66,7 +67,8 @@ public class AccountServiceImpl implements AccountService {
         LocalDateTime now = LocalDateTime.now();
         account.setCreatedAt(now);
         account.setExpiredAt(now.plusDays(30L));
-        account.setUsername(username);
+        account.setUsername(rq.getUsername());
+        account.setEmail(rq.getEmail());
         account.setMegabytesTransferred(0L);
         // 默认分配 200G 流量
         account.setMegabytesAllocate(200 * 1024L);
@@ -149,16 +151,17 @@ public class AccountServiceImpl implements AccountService {
             throw BizException.format("账户 %s 不存在", username);
         }
 
-        // 只有流量用尽才可以重置
-        if (account.getMegabytesAllocate() <= account.getMegabytesTransferred()) {
-            account.setMegabytesTransferred(0L);
-
-            // 发布自动任务，为账户重新分配节点
-            TaskTASK1001BO taskBO = new TaskTASK1001BO();
-            taskBO.setAccountId(account.getId());
-            autoTaskBaseService.createAutoTask(TaskTypeConst.ALLOCATE_ACCOUNT_TO_SHADOWBOXES,
-                    JSON.toJSONString(taskBO));
+        if ((account.getMegabytesAllocate() - account.getMegabytesTransferred()) > 1024) {
+            throw new BizException("只有剩余流量小于 1G 才可以重置");
         }
+        account.setMegabytesTransferred(0L);
+
+        // 发布自动任务，为账户重新分配节点
+        TaskTASK1001BO taskBO = new TaskTASK1001BO();
+        taskBO.setAccountId(account.getId());
+        taskBO.setResetTraffic(true);
+        autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.ALLOCATE_ACCOUNT_TO_SHADOWBOXES,
+                JSON.toJSONString(taskBO));
     }
 
 }

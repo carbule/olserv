@@ -11,8 +11,11 @@ import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.repository.AccountRepository;
 import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.repository.ShadowboxRepository;
+import cn.azhicloud.olserv.service.impl.autotask.bo.TaskNOTICE1001BO;
+import cn.azhicloud.olserv.service.impl.autotask.bo.TaskNOTICE1006BO;
 import cn.azhicloud.olserv.service.impl.autotask.bo.TaskTASK1001BO;
 import cn.azhicloud.task.constant.TaskTypeConst;
+import cn.azhicloud.task.service.AutoTaskBaseService;
 import cn.azhicloud.task.service.AutoTaskExecuteService;
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +37,8 @@ public class AutoTaskTASK1001ServiceImpl implements AutoTaskExecuteService {
     private final AccountRepository accountRepository;
 
     private final ShadowboxRepository shadowboxRepository;
+
+    private final AutoTaskBaseService autoTaskBaseService;
 
     @Override
     public void execute(String taskData) {
@@ -64,5 +69,19 @@ public class AutoTaskTASK1001ServiceImpl implements AutoTaskExecuteService {
                 log.error("call api {} failed", box.getApiUrl(), e);
             }
         });
+
+        if (taskBO.isResetTraffic()) {
+            // 创建自动任务 NOTICE1006 通知用户流量已重置
+            TaskNOTICE1006BO newTaskBO = new TaskNOTICE1006BO();
+            newTaskBO.setAccountId(account.getId());
+            autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.NOTICE_ACCOUNT_TRAFFIC_RESET,
+                    JSON.toJSONString(newTaskBO));
+        } else {
+            // 创建自动任务 NOTICE1001 通知用户账户已创建
+            TaskNOTICE1001BO newTaskBO = new TaskNOTICE1001BO();
+            newTaskBO.setAccountId(account.getId());
+            autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.NOTICE_ACCOUNT_CREATED,
+                    JSON.toJSONString(newTaskBO));
+        }
     }
 }

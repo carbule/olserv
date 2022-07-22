@@ -11,8 +11,10 @@ import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.repository.AccountRepository;
 import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.repository.ShadowboxRepository;
+import cn.azhicloud.olserv.service.impl.autotask.bo.TaskNOTICE1002BO;
 import cn.azhicloud.olserv.service.impl.autotask.bo.TaskTASK2001BO;
 import cn.azhicloud.task.constant.TaskTypeConst;
+import cn.azhicloud.task.service.AutoTaskBaseService;
 import cn.azhicloud.task.service.AutoTaskExecuteService;
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,8 @@ public class AutoTaskTASK2001ServiceImpl implements AutoTaskExecuteService {
     private final AccountRepository accountRepository;
 
     private final ShadowboxRepository shadowboxRepository;
+
+    private final AutoTaskBaseService autoTaskBaseService;
 
     @Override
     public void execute(String taskData) {
@@ -63,5 +67,11 @@ public class AutoTaskTASK2001ServiceImpl implements AutoTaskExecuteService {
                 log.error("call api {} failed", shadowbox.getApiUrl(), e);
             }
         });
+
+        // 创建自动任务 NOTICE1002 通知所有用户拉取最新订阅
+        TaskNOTICE1002BO newTaskBO = new TaskNOTICE1002BO();
+        newTaskBO.setApiUrl(shadowbox.getApiUrl());
+        autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.NOTICE_ACCOUNT_ALLOCATE_NEW_KEY,
+                JSON.toJSONString(newTaskBO));
     }
 }

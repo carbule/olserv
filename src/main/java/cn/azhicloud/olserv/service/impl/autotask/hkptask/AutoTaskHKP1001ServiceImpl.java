@@ -1,10 +1,9 @@
-package cn.azhicloud.olserv.service.impl.autotask;
+package cn.azhicloud.olserv.service.impl.autotask.hkptask;
 
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import cn.azhicloud.infra.helper.MailHelper;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
@@ -12,8 +11,11 @@ import cn.azhicloud.olserv.repository.AccountRepository;
 import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.repository.mapper.AccountMapper;
 import cn.azhicloud.olserv.service.AccountService;
+import cn.azhicloud.olserv.service.impl.autotask.bo.TaskNOTICE1004BO;
 import cn.azhicloud.task.constant.TaskTypeConst;
+import cn.azhicloud.task.service.AutoTaskBaseService;
 import cn.azhicloud.task.service.AutoTaskExecuteService;
+import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,7 +41,7 @@ public class AutoTaskHKP1001ServiceImpl implements AutoTaskExecuteService {
 
     private final AccountService accountService;
 
-    private final MailHelper mailHelper;
+    private final AutoTaskBaseService autoTaskBaseService;
 
     @Override
     @Transactional
@@ -51,8 +53,13 @@ public class AutoTaskHKP1001ServiceImpl implements AutoTaskExecuteService {
                     expiredAccounts.stream().map(Account::getId)
                             .collect(Collectors.toList())
             );
-            // 发送邮件通知
-            sendAccountExpiredMail(expiredAccounts);
+            // 创建自动任务 NOTICE1004 发送邮件通知
+            for (Account account : expiredAccounts) {
+                TaskNOTICE1004BO taskBO = new TaskNOTICE1004BO();
+                taskBO.setAccountId(account.getId());
+                autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.NOTICE_ACCOUNT_EXPIRED,
+                        JSON.toJSONString(taskBO));
+            }
             return;
         }
         log.info("No expired accounts.");
@@ -65,14 +72,5 @@ public class AutoTaskHKP1001ServiceImpl implements AutoTaskExecuteService {
                 outlineRepository.deletesAnAccessKey(URI.create(box.getApiUrl()), key.getId());
             }
         }
-    }
-
-    private void sendAccountExpiredMail(List<Account> expiredAccount) {
-        mailHelper.sendAlarmMail("ACCOUNT EXPIRED",
-                "accounts [" +
-                        expiredAccount.stream()
-                                .map(Account::getUsername)
-                                .collect(Collectors.joining(", "))
-                        + "] has expired");
     }
 }
