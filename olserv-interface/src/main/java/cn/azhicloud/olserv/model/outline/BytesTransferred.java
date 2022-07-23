@@ -12,5 +12,13 @@ import lombok.Data;
 @Data
 public class BytesTransferred {
 
+    /**
+     * {
+     * "bytesTransferredByUserId": {
+     * "userId": 1024,
+     * "userId1": 2045
+     * }
+     * }
+     */
     private Map<String, Long> bytesTransferredByUserId;
 }

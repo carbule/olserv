@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
+ * 针对过期的账户，进行订阅清理
+ *
  * @author zhouzhifeng
  * @version 1.0
  * @since 2022/6/17 13:05

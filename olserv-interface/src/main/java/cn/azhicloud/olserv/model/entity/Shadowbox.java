@@ -18,19 +18,40 @@ import lombok.Data;
 @Entity
 public class Shadowbox {
 
+    /**
+     * 服务器管理 API
+     */
     @Id
     private String apiUrl;
 
+    /**
+     * 服务器名称
+     */
     private String name;
 
+    /**
+     * 服务器信息
+     */
     private String serverId;
 
+    /**
+     * 服务器信息
+     */
     private Boolean metricsEnabled;
 
+    /**
+     * 服务器信息
+     */
     private Long createdTimestampMs;
 
+    /**
+     * Key 端口号
+     */
     private Integer portForNewAccessKeys;
 
+    /**
+     * 该服务器下拥有的 Keys
+     */
     @Transient
     private List<AccessKey> accessKeys = Collections.emptyList();
 }

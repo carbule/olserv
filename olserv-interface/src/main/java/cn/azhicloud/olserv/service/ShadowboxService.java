@@ -11,7 +11,18 @@ import cn.azhicloud.olserv.model.entity.Shadowbox;
  */
 public interface ShadowboxService {
 
+    /**
+     * 新增新的服务器
+     *
+     * @param apiUrl 服务器管理 API
+     * @return 服务器信息
+     */
     Shadowbox addShadowbox(String apiUrl);
 
+    /**
+     * 获取所有服务器信息，包括其拥有的 Keys
+     *
+     * @return 服务器列表
+     */
     List<Shadowbox> listShadowboxes();
 }

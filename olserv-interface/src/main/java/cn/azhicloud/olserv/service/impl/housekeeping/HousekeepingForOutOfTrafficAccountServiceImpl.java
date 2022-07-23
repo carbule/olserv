@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
+ * 统计账户的使用流量，并针对已用尽流量的账户进行订阅清理
+ *
  * @author zhouzhifeng
  * @version 1.0
  * @since 2022/7/16 14:31

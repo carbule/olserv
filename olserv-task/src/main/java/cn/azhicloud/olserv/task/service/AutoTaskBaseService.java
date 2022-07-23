@@ -1,6 +1,8 @@
 package cn.azhicloud.olserv.task.service;
 
 /**
+ * 自动任务基础代码，用户创建和发布自动任务
+ *
  * @author zhouzhifeng
  * @version 1.0
  * @since 2022/7/9 20:05
