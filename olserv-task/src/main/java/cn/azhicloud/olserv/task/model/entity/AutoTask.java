@@ -27,7 +27,7 @@ public class AutoTask {
      * 任务 ID
      */
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long taskId;
 
     /**

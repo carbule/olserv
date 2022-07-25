@@ -61,7 +61,7 @@ spring:
   datasource:
     username: olserv
     password: pwd@123
-    url: jdbc:mysql://production-database/olserv?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://pi.wg/olserv?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
   activemq:
     broker-url: tcp://101.34.23.55:61616?jms.prefetchPolicy.queuePrefetch=10
 logging:

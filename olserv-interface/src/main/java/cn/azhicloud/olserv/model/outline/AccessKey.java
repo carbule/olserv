@@ -1,6 +1,5 @@
 package cn.azhicloud.olserv.model.outline;
 
-import java.io.Serializable;
 import java.net.URI;
 
 import lombok.Data;
@@ -11,9 +10,7 @@ import lombok.Data;
  * @since 2021/10/3 20:55
  */
 @Data
-public class AccessKey implements Serializable {
-
-    private static final long serialVersionUID = -5700991502368501464L;
+public class AccessKey {
 
     private String id;
 

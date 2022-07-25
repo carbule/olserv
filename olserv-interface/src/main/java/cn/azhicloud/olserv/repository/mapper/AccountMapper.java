@@ -16,7 +16,7 @@ import org.apache.ibatis.annotations.Select;
 public interface AccountMapper {
 
     /**
-     * 查询创建时间在 datTime 前的账户
+     * 查询创建时间在 dateTime 前的账户
      *
      * @param dateTime 时间
      * @return ls
