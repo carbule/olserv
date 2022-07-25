@@ -1,10 +1,9 @@
 package cn.azhicloud.olserv.task.service.impl;
 
-import java.text.DecimalFormat;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicLong;
 
+import cn.azhicloud.olserv.infra.helper.SystemHelper;
 import cn.azhicloud.olserv.task.constant.ActiveMQQueueConst;
 import cn.azhicloud.olserv.task.constant.TaskStatus;
 import cn.azhicloud.olserv.task.model.entity.AutoTask;
@@ -39,7 +38,7 @@ public class AutoTaskBaseServiceImpl implements AutoTaskBaseService {
     @Transactional
     public String createAutoTask(String taskType, String taskData) {
         AutoTask task = new AutoTask();
-        task.setTaskNo(getTaskNo());
+        task.setTaskNo(SystemHelper.nextSerialNo());
         task.setTaskType(taskType);
         task.setTaskData(taskData);
         task.setStatus(TaskStatus.PENDING.value);
@@ -61,10 +60,5 @@ public class AutoTaskBaseServiceImpl implements AutoTaskBaseService {
             }
         });
         return taskNo;
-    }
-
-    private String getTaskNo() {
-        return LocalDateTime.now().format(FORMATTER) +
-                new DecimalFormat("0000").format(SEQ.getAndIncrement() % 10000);
     }
 }

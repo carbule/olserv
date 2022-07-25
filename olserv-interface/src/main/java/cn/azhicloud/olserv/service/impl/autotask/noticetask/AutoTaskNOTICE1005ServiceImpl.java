@@ -32,10 +32,12 @@ public class AutoTaskNOTICE1005ServiceImpl implements AutoTaskExecuteService {
         TaskNOTICE1005BO taskBO = JSON.parseObject(taskData, TaskNOTICE1005BO.class);
         Account account = accountRepository.findById(taskBO.getAccountId())
                 .orElseThrow(() -> new BizException("账户不存在"));
-        if (StringUtils.isBlank(account.getEmail())) {
-            throw BizException.format("账户 %s 未配置邮箱", account.getUsername());
+        if (Boolean.TRUE.equals(account.getEnableNotice())) {
+            if (StringUtils.isBlank(account.getEmail())) {
+                throw BizException.format("账户 %s 未配置邮箱", account.getUsername());
+            }
+            mailHelper.sendSubscribeNotice(account.getEmail(), "TRAFFIC OVERED",
+                    "流量已用尽，如需继续使用可联系运维进行重置");
         }
-        mailHelper.sendSubscribeNotice(account.getEmail(), "TRAFFIC OVERED",
-                "流量已用尽，如需继续使用可联系运维进行重置");
     }
 }

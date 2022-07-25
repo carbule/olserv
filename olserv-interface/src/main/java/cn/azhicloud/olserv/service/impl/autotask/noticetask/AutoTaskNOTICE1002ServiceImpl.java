@@ -46,8 +46,10 @@ public class AutoTaskNOTICE1002ServiceImpl implements AutoTaskExecuteService {
         }
 
         ExecutorHelper.execute(accounts, account -> {
-            mailHelper.sendSubscribeNotice(account.getEmail(), "ALLOCATE NEW NODE",
-                    String.format("新节点 [%s] 添加，可刷新订阅获取", shadowbox.getName()));
+            if (Boolean.TRUE.equals(account.getEnableNotice())) {
+                mailHelper.sendSubscribeNotice(account.getEmail(), "ALLOCATE NEW NODE",
+                        String.format("新节点 [%s] 添加，可刷新订阅获取", shadowbox.getName()));
+            }
         });
     }
 }

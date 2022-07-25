@@ -42,6 +42,12 @@ public class Account {
     private String email;
 
     /**
+     * 是否启用邮件通知
+     */
+    @Column(columnDefinition = "bit default 1")
+    private Boolean enableNotice;
+
+    /**
      * 最后拉取订阅时间
      */
     private LocalDateTime lastAccess;

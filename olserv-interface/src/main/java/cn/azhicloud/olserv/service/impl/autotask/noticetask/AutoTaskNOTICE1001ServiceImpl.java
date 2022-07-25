@@ -36,11 +36,13 @@ public class AutoTaskNOTICE1001ServiceImpl implements AutoTaskExecuteService {
         TaskNOTICE1001BO taskBO = JSON.parseObject(taskData, TaskNOTICE1001BO.class);
         Account account = accountRepository.findById(taskBO.getAccountId())
                 .orElseThrow(() -> new BizException("账户不存在"));
-        if (StringUtils.isBlank(account.getEmail())) {
-            throw BizException.format("账户 %s 没配置邮箱", account.getUsername());
+        if (Boolean.TRUE.equals(account.getEnableNotice())) {
+            if (StringUtils.isBlank(account.getEmail())) {
+                throw BizException.format("账户 %s 没配置邮箱", account.getUsername());
+            }
+            String subscribe = accountSubscribeUrlTemplate.replace("{accountId}", account.getId());
+            mailHelper.sendSubscribeNotice(account.getEmail(), "ACCOUNT CREATED",
+                    String.format("账户已创建，订阅链接：%s", subscribe));
         }
-        String subscribe = accountSubscribeUrlTemplate.replace("{accountId}", account.getId());
-        mailHelper.sendSubscribeNotice(account.getEmail(), "ACCOUNT CREATED",
-                String.format("账户已创建，订阅链接：%s", subscribe));
     }
 }

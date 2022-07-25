@@ -32,10 +32,12 @@ public class AutoTaskNOTICE1004ServiceImpl implements AutoTaskExecuteService {
         TaskNOTICE1004BO taskBO = JSON.parseObject(taskData, TaskNOTICE1004BO.class);
         Account account = accountRepository.findById(taskBO.getAccountId())
                 .orElseThrow(() -> new BizException("账户不存在"));
-        if (StringUtils.isBlank(account.getEmail())) {
-            throw BizException.format("账户 %s 未配置邮箱", account.getUsername());
+        if (Boolean.TRUE.equals(account.getEnableNotice())) {
+            if (StringUtils.isBlank(account.getEmail())) {
+                throw BizException.format("账户 %s 未配置邮箱", account.getUsername());
+            }
+            mailHelper.sendSubscribeNotice(account.getEmail(), "ACCOUNT EXPIRED",
+                    "账户已过期，如需继续使用可联系运维");
         }
-        mailHelper.sendSubscribeNotice(account.getEmail(), "ACCOUNT EXPIRED",
-                "账户已过期，如需继续使用可联系运维");
     }
 }

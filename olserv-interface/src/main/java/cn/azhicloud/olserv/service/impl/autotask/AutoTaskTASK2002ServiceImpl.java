@@ -36,8 +36,10 @@ public class AutoTaskTASK2002ServiceImpl implements AutoTaskExecuteService {
         Account account = accountRepository.findById(taskBO.getAccountId())
                 .orElseThrow(() -> new BizException("账户不存在"));
 
-        mailHelper.sendSubscribeNotice(alarmMailReceiver, "ACCOUNT PULL SUBSCRIBE",
-                String.format("Account [%s] pull subscribe, has nodes: %s", account.getUsername(),
-                        String.join(", ", taskBO.getNodes())));
+        if (Boolean.TRUE.equals(account.getEnableNotice())) {
+            mailHelper.sendSubscribeNotice(alarmMailReceiver, "ACCOUNT PULL SUBSCRIBE",
+                    String.format("Account [%s] pull subscribe, has nodes: %s", account.getUsername(),
+                            String.join(", ", taskBO.getNodes())));
+        }
     }
 }
