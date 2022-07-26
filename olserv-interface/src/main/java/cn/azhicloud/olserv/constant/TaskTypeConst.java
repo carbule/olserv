@@ -33,6 +33,11 @@ public interface TaskTypeConst {
     String ACCOUNT_PULL_SUBSCRIBE_NOTICE = "TASK2002";
 
     /**
+     * 获取账户获取订阅的地理位置
+     */
+    String SAVE_ACCOUNT_PULL_SUBSCRIBE_LOCATION = "TASK2003";
+
+    /**
      * 通知用户账户已经创建
      */
     String NOTICE_ACCOUNT_CREATED = "NOTICE1001";

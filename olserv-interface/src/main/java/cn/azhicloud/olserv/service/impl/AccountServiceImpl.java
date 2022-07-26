@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import cn.azhicloud.olserv.constant.TaskTypeConst;
 import cn.azhicloud.olserv.infra.exception.BizException;
 import cn.azhicloud.olserv.model.CreateAccountRQ;
@@ -19,7 +21,9 @@ import cn.azhicloud.olserv.service.AccountService;
 import cn.azhicloud.olserv.service.ShadowboxService;
 import cn.azhicloud.olserv.service.impl.autotask.bo.TaskTASK1001BO;
 import cn.azhicloud.olserv.service.impl.autotask.bo.TaskTASK2002BO;
+import cn.azhicloud.olserv.service.impl.autotask.bo.TaskTASK2003BO;
 import cn.azhicloud.olserv.task.service.AutoTaskBaseService;
+import cn.hutool.extra.servlet.ServletUtil;
 import com.alibaba.fastjson.JSON;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +54,8 @@ public class AccountServiceImpl implements AccountService {
     private final OutlineRepository outlineRepository;
 
     private final AutoTaskBaseService autoTaskBaseService;
+
+    private final HttpServletRequest httpServletRequest;
 
     @Value("${url-template.account-subscribe}")
     private String accountSubscribeUrlTemplate;
@@ -98,7 +104,14 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(id).orElseThrow(() ->
                 BizException.format("账户不存在"));
         account.setLastAccess(LocalDateTime.now());
-
+        account.setFromIp(ServletUtil.getClientIP(httpServletRequest));
+        // 发布自动任务 TASK2003 获取账户拉取订阅时的地理位置
+        {
+            TaskTASK2003BO taskBO = new TaskTASK2003BO();
+            taskBO.setAccountId(account.getId());
+            autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.SAVE_ACCOUNT_PULL_SUBSCRIBE_LOCATION,
+                    JSON.toJSONString(taskBO));
+        }
         List<Shadowbox> boxes = shadowboxService.listShadowboxes();
 
         for (Iterator<Shadowbox> it = boxes.iterator(); it.hasNext(); ) {
@@ -116,11 +129,13 @@ public class AccountServiceImpl implements AccountService {
         boxes.sort(Comparator.comparing(Shadowbox::getName));
 
         // 发送通知邮件
-        TaskTASK2002BO taskBO = new TaskTASK2002BO();
-        taskBO.setAccountId(account.getId());
-        taskBO.setNodes(boxes.stream().map(Shadowbox::getName).collect(Collectors.toList()));
-        autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.ACCOUNT_PULL_SUBSCRIBE_NOTICE,
-                JSON.toJSONString(taskBO));
+        {
+            TaskTASK2002BO taskBO = new TaskTASK2002BO();
+            taskBO.setAccountId(account.getId());
+            taskBO.setNodes(boxes.stream().map(Shadowbox::getName).collect(Collectors.toList()));
+            autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.ACCOUNT_PULL_SUBSCRIBE_NOTICE,
+                    JSON.toJSONString(taskBO));
+        }
         return boxes;
     }
 

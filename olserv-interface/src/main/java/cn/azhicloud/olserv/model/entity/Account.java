@@ -61,6 +61,17 @@ public class Account {
      * 分配的兆字节流量
      */
     private Long megabytesAllocate;
+    /**
+     * 访问者 IP
+     */
+    @Column(length = 16)
+    private String fromIp;
+
+    /**
+     * 访问者地理位置
+     */
+    @Column(length = 100)
+    private String fromLocation;
 
     /**
      * 订阅地址
