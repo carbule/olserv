@@ -30,6 +30,9 @@ server:
 alarm:
   mail:
     receiver: carbule.bar@gmail.com
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
 ---
 #### dev ####
 spring:

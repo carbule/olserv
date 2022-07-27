@@ -11,6 +11,7 @@ import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.repository.AccountRepository;
 import cn.azhicloud.olserv.service.impl.autotask.bo.TaskTASK2003BO;
 import cn.azhicloud.olserv.task.service.AutoTaskExecuteService;
+import cn.hutool.core.net.NetUtil;
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,10 +44,13 @@ public class AutoTaskTASK2003ServiceImpl implements AutoTaskExecuteService {
             throw new BizException("访问者 IP 为空");
         }
 
-        IPSBResponse response = ipsbRepository.json(account.getFromIp());
-        // China Unicom | China Jiangsu Nanjing
-        account.setFromLocation(String.join(" ",
-                response.getOrganization() + " |",
-                response.getCountry(), response.getRegion(), response.getCity()));
+        // 如果是内网 IP，无法获取地理位置
+        if (!NetUtil.isInnerIP(account.getFromIp())) {
+            IPSBResponse response = ipsbRepository.json(account.getFromIp());
+            // China Unicom | China Jiangsu Nanjing
+            account.setFromLocation(String.join(" ",
+                    response.getOrganization() + " |",
+                    response.getCountry(), response.getRegion(), response.getCity()));
+        }
     }
 }

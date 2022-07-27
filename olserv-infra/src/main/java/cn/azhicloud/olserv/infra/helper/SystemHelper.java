@@ -28,4 +28,13 @@ public class SystemHelper {
         return LocalDateTime.now().format(FORMATTER) +
                 new DecimalFormat("0000").format(nextSeq % 10000);
     }
+
+    /**
+     * 趋势递增序列号生成
+     *
+     * @return e.q. 2207251435290000
+     */
+    public static Long nextSerialNo2Long() {
+        return Long.valueOf(nextSerialNo());
+    }
 }
