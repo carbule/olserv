@@ -56,6 +56,13 @@ public class AutoTaskBizServiceImpl implements AutoTaskBizService {
             if (taskType == null) {
                 throw BizException.format("不支持该任务类型：%s", task.getTaskType());
             }
+            // 如果任务已禁用，则取消任务执行
+            if (!Boolean.TRUE.equals(taskType.getEnabled())) {
+                log.info("The task type {} is disabled, cancel task {} execute.", taskType.getTaskType(), task.getTaskNo());
+                task.setStatus(TaskStatus.CANCELLED.value);
+                autoTaskRepository.save(task);
+                return;
+            }
 
             AutoTaskExecuteService executeService = context.getBean(taskType.getExecServiceId(),
                     AutoTaskExecuteService.class);

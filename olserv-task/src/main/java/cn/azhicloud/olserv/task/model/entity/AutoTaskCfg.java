@@ -37,6 +37,12 @@ public class AutoTaskCfg {
     @Column(nullable = false, unique = true, length = 50)
     private String execServiceId;
 
+    /**
+     * 是否启用该任务
+     */
+    @Column(columnDefinition = "bit not null default 1")
+    private Boolean enabled;
+
     @Column(columnDefinition = "datetime default current_timestamp")
     private LocalDateTime createdAt;
 }

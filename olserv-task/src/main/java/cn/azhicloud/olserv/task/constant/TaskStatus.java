@@ -30,7 +30,12 @@ public enum TaskStatus {
     /**
      * 错误
      */
-    ERROR("92");
+    ERROR("92"),
+
+    /**
+     * 已取消
+     */
+    CANCELLED("99");
 
     public final String value;
 
