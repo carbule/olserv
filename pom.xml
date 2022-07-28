@@ -6,7 +6,7 @@
         <module>olserv-infra</module>
         <module>olserv-housekeeping</module>
         <module>olserv-task</module>
-        <module>olserv-interface</module>
+        <module>olserv-application</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
