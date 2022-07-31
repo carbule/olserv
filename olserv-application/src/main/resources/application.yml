@@ -1,17 +1,20 @@
-#### master ####
 spring:
-  profiles:
-    active: @profile.active@
   jpa:
     open-in-view: false
+    hibernate:
+      ddl-auto: update
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    username: olserv
+    password: pwd@123
+    url: jdbc:mysql://pi.wg/olserv?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
   mvc:
     servlet:
       load-on-startup: 1
   jackson:
     default-property-inclusion: NON_NULL
   activemq:
+    broker-url: tcp://101.34.23.55:61616?jms.prefetchPolicy.queuePrefetch=10
     in-memory: false
     packages:
       trust-all: false
@@ -33,43 +36,10 @@ alarm:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
----
-#### dev ####
-spring:
-  config:
-    activate:
-      on-profile: dev
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-  datasource:
-    username: root
-    password: 123456
-    url: jdbc:mysql://localhost:3306/olserv_dev?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-  activemq:
-    broker-url: tcp://101.34.23.55:61617?jms.prefetchPolicy.queuePrefetch=10
-# 订阅模版
-url-template:
-  account-subscribe: http://127.0.0.1:8080/olserv/account/{accountId}/access-keys/subscribe
----
-#### prod ####
-spring:
-  config:
-    activate:
-      on-profile: prod
-  jpa:
-    hibernate:
-      ddl-auto: update
-  datasource:
-    username: olserv
-    password: pwd@123
-    url: jdbc:mysql://pi.wg/olserv?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-  activemq:
-    broker-url: tcp://101.34.23.55:61616?jms.prefetchPolicy.queuePrefetch=10
 logging:
   file:
     name: /var/log/olserv.log
-# 订阅模版
-url-template:
-  account-subscribe: http://interface.azhicloud.cn:9999/olserv/account/{accountId}/access-keys/subscribe
+template:
+  subscribe-link: http://interface.azhicloud.cn:9999/olserv/account/{0}/access-keys/subscribe
+service:
+  fzero: http://interface.azhicloud.cn:9999/0000

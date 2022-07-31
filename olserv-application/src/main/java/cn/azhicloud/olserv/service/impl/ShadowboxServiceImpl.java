@@ -2,17 +2,14 @@ package cn.azhicloud.olserv.service.impl;
 
 import java.net.URI;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import cn.azhicloud.olserv.constant.TaskTypeConst;
 import cn.azhicloud.olserv.infra.exception.BizException;
+import cn.azhicloud.olserv.infra.helper.ExecutorHelper;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.Server;
 import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.repository.ShadowboxRepository;
-import cn.azhicloud.olserv.service.AccountService;
 import cn.azhicloud.olserv.service.ShadowboxService;
 import cn.azhicloud.olserv.service.impl.autotask.bo.TaskTASK2001BO;
 import cn.azhicloud.olserv.task.service.AutoTaskBaseService;
@@ -37,8 +34,6 @@ public class ShadowboxServiceImpl implements ShadowboxService {
     private final ShadowboxRepository shadowboxRepository;
 
     private final OutlineRepository outlineRepository;
-
-    private final AccountService accountService;
 
     private final AutoTaskBaseService autoTaskBaseService;
 
@@ -67,24 +62,20 @@ public class ShadowboxServiceImpl implements ShadowboxService {
     @Transactional
     public List<Shadowbox> listShadowboxes() {
         List<Shadowbox> shadowboxes = shadowboxRepository.findAll();
-        CountDownLatch latch = new CountDownLatch(shadowboxes.size());
-        ExecutorService executor = Executors.newCachedThreadPool();
-        for (Shadowbox box : shadowboxes) {
-            executor.execute(() -> {
-                try {
-                    URI uri = URI.create(box.getApiUrl());
-                    // 如果服务端有变更，托管态实体自动更新
-                    BeanUtils.copyProperties(outlineRepository.returnsInformationAboutTheServer(uri), box);
-                    box.setAccessKeys(outlineRepository.listsTheAccessKeys(uri)
-                            .getAccessKeys());
-                } catch (Exception e) {
-                    log.error("call api {} failed", box.getApiUrl(), e);
-                }
-                latch.countDown();
-            });
-        }
-        latch.await();
-        return shadowboxes;
+
+        return ExecutorHelper.execute(shadowboxes, box -> {
+            try {
+                URI uri = URI.create(box.getApiUrl());
+                // 如果服务端有变更，托管态实体自动更新
+                BeanUtils.copyProperties(outlineRepository.returnsInformationAboutTheServer(uri), box);
+                box.setAccessKeys(outlineRepository.listsTheAccessKeys(uri)
+                        .getAccessKeys());
+            } catch (Exception e) {
+                log.error("call api {} failed", box.getApiUrl(), e);
+            }
+
+            return box;
+        });
     }
 
 }

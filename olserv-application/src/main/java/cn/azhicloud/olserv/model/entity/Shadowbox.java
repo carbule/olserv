@@ -1,5 +1,6 @@
 package cn.azhicloud.olserv.model.entity;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.Entity;
@@ -54,4 +55,8 @@ public class Shadowbox {
      */
     @Transient
     private List<AccessKey> accessKeys = Collections.emptyList();
+
+    public URI URI() {
+        return URI.create(apiUrl);
+    }
 }

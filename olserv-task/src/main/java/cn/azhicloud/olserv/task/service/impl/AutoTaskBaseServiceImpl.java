@@ -1,14 +1,13 @@
 package cn.azhicloud.olserv.task.service.impl;
 
-import java.time.format.DateTimeFormatter;
-import java.util.concurrent.atomic.AtomicLong;
-
+import cn.azhicloud.olserv.infra.BizType;
 import cn.azhicloud.olserv.infra.helper.SystemHelper;
 import cn.azhicloud.olserv.task.constant.ActiveMQQueueConst;
 import cn.azhicloud.olserv.task.constant.TaskStatus;
 import cn.azhicloud.olserv.task.model.entity.AutoTask;
 import cn.azhicloud.olserv.task.repository.AutoTaskRepository;
 import cn.azhicloud.olserv.task.service.AutoTaskBaseService;
+import com.xiaoju.uemc.tinyid.client.utils.TinyId;
 import lombok.RequiredArgsConstructor;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.springframework.jms.core.JmsMessagingTemplate;
@@ -26,10 +25,6 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @RequiredArgsConstructor
 public class AutoTaskBaseServiceImpl implements AutoTaskBaseService {
 
-    private static final AtomicLong SEQ = new AtomicLong(0L);
-
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmss");
-
     private final AutoTaskRepository autoTaskRepository;
 
     private final JmsMessagingTemplate jmsMessagingTemplate;
@@ -38,6 +33,7 @@ public class AutoTaskBaseServiceImpl implements AutoTaskBaseService {
     @Transactional
     public String createAutoTask(String taskType, String taskData) {
         AutoTask task = new AutoTask();
+        task.setTaskId(TinyId.nextId(BizType.APPLICATION));
         task.setTaskNo(SystemHelper.nextSerialNo());
         task.setTaskType(taskType);
         task.setTaskData(taskData);

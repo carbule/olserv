@@ -44,7 +44,7 @@ public class Account {
     /**
      * 是否启用邮件通知
      */
-    @Column(columnDefinition = "bit default 1")
+    @Column(nullable = false)
     private Boolean enableNotice;
 
     /**
@@ -74,8 +74,8 @@ public class Account {
     private String fromLocation;
 
     /**
-     * 订阅地址
+     * 订阅信息
      */
     @Transient
-    private String subscribe;
+    private Subscribe subscribe;
 }

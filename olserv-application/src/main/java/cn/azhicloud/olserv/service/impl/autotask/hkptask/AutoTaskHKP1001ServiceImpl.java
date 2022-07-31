@@ -1,15 +1,16 @@
 package cn.azhicloud.olserv.service.impl.autotask.hkptask;
 
-import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import cn.azhicloud.olserv.constant.TaskTypeConst;
+import cn.azhicloud.olserv.infra.helper.ExecutorHelper;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.repository.AccountRepository;
 import cn.azhicloud.olserv.repository.OutlineRepository;
+import cn.azhicloud.olserv.repository.ShadowboxRepository;
 import cn.azhicloud.olserv.repository.mapper.AccountMapper;
 import cn.azhicloud.olserv.service.AccountService;
 import cn.azhicloud.olserv.service.impl.autotask.bo.TaskNOTICE1004BO;
@@ -43,12 +44,14 @@ public class AutoTaskHKP1001ServiceImpl implements AutoTaskExecuteService {
 
     private final AutoTaskBaseService autoTaskBaseService;
 
+    private final ShadowboxRepository shadowboxRepository;
+
     @Override
     @Transactional
     public void execute(String taskData) {
         List<Account> expiredAccounts = accountMapper.selectExpiredAccounts();
         if (expiredAccounts.size() > 0) {
-            expiredAccounts.forEach(account -> deleteAccessKey(account.getId()));
+//            expiredAccounts.forEach(account -> deleteAccessKey(account.getId()));
             accountRepository.deleteAllByIdInBatch(
                     expiredAccounts.stream().map(Account::getId)
                             .collect(Collectors.toList())
@@ -65,12 +68,20 @@ public class AutoTaskHKP1001ServiceImpl implements AutoTaskExecuteService {
         log.info("No expired accounts.");
     }
 
-    private void deleteAccessKey(String accountId) {
-        List<Shadowbox> shadowboxes = accountService.listShadowboxOwnedByAccount(accountId);
-        for (Shadowbox box : shadowboxes) {
-            for (AccessKey key : box.getAccessKeys()) {
-                outlineRepository.deletesAnAccessKey(URI.create(box.getApiUrl()), key.getId());
-            }
-        }
+    private void deleteAccessKey(List<Account> expiredAccounts) {
+        List<Shadowbox> shadowboxes = shadowboxRepository.findAll();
+
+        List<String> names = expiredAccounts.stream().map(Account::getUsername).collect(Collectors.toList());
+        ExecutorHelper.execute(shadowboxes, shadowbox -> {
+            List<AccessKey> accessKeys = outlineRepository.listsTheAccessKeys(shadowbox.URI()).getAccessKeys();
+
+            List<AccessKey> keys = accessKeys.stream().filter(k -> names.contains(k.getName()))
+                    .collect(Collectors.toList());
+
+            ExecutorHelper.execute(keys, k -> {
+                outlineRepository.deletesAnAccessKey(shadowbox.URI(), k.getId());
+            });
+        });
     }
+
 }

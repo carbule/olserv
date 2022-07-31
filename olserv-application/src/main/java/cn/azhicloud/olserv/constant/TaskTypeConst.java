@@ -43,6 +43,11 @@ public interface TaskTypeConst {
     String SAVE_ACCOUNT_PULL_SUBSCRIBE_LOCATION = "TASK2003";
 
     /**
+     * 生成订阅链接和短链接 URL
+     */
+    String GENERATE_SUBSCRIBE_AND_SHORT_URL = "TASK3001";
+
+    /**
      * 通知用户账户已经创建
      */
     String NOTICE_ACCOUNT_CREATED = "NOTICE1001";

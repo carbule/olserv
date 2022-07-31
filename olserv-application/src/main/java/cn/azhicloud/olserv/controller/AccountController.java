@@ -8,10 +8,7 @@ import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.service.AccountService;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author zhouzhifeng
@@ -26,8 +23,8 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @GetMapping("/create")
-    public Account createNew(CreateAccountRQ rq) {
+    @PostMapping("/create")
+    public Account createNew(@RequestBody @Validated CreateAccountRQ rq) {
         return accountService.createAccount(rq);
     }
 
