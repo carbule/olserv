@@ -5,7 +5,6 @@ import javax.transaction.Transactional;
 import cn.azhicloud.olserv.constant.TaskTypeConst;
 import cn.azhicloud.olserv.infra.exception.BizException;
 import cn.azhicloud.olserv.infra.model.IPSBResponse;
-import cn.azhicloud.olserv.infra.repository.IPAPIRepository;
 import cn.azhicloud.olserv.infra.repository.IPSBRepository;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.repository.AccountRepository;
@@ -27,8 +26,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class AutoTaskTASK2003ServiceImpl implements AutoTaskExecuteService {
-
-    private final IPAPIRepository ipapiRepository;
 
     private final IPSBRepository ipsbRepository;
 

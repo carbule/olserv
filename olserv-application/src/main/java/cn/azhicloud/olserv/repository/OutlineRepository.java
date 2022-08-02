@@ -1,7 +1,10 @@
 package cn.azhicloud.olserv.repository;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Objects;
 
+import cn.azhicloud.olserv.infra.exception.BizException;
 import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.model.outline.AccessKeys;
 import cn.azhicloud.olserv.model.outline.BytesTransferred;
@@ -71,4 +74,65 @@ public interface OutlineRepository {
      */
     @GetMapping("/metrics/transfer")
     BytesTransferred returnsTheDataTransferredPerAccessKey(URI uri);
+
+    /**
+     * 删除一个 Key
+     *
+     * @param uri     api
+     * @param keyName key name
+     */
+    default void deleteAccessKey(URI uri, String keyName) {
+        List<AccessKey> accessKeys = listsTheAccessKeys(uri).getAccessKeys();
+
+        accessKeys.stream().filter(k -> Objects.equals(k.getName(), keyName))
+                .findFirst().ifPresent(k -> {
+                    deletesAnAccessKey(uri, k.getId());
+                });
+    }
+
+    /**
+     * 新增一个 Key
+     *
+     * @param uri     shadowbox api
+     * @param keyName key name
+     * @return key
+     */
+    default AccessKey createAccessKey(URI uri, String keyName) {
+        // Key 名称校验
+        AccessKeys accessKeys = listsTheAccessKeys(uri);
+        boolean match = accessKeys.getAccessKeys().stream()
+                .anyMatch(k -> Objects.equals(k.getName(), keyName));
+        if (match) {
+            throw BizException.format("Key %s 名称重复", keyName);
+        }
+
+        // 创建一个新的 Key
+        AccessKey accessKey = createsANewAccessKey(uri);
+
+        // 设置 key 的名称
+        AccessKey renameBody = new AccessKey();
+        renameBody.setName(keyName);
+        try {
+            renamesAnAccessKey(uri, accessKey.getId(), renameBody);
+        } catch (Exception e) {
+            // 如果设置名称失败，删除先前创建的 key
+            deletesAnAccessKey(uri, accessKey.getId());
+            throw e;
+        }
+
+        return accessKey;
+    }
+
+    /**
+     * 获取 Key
+     *
+     * @param uri     api
+     * @param keyName key name
+     * @return key
+     */
+    default AccessKey getAccessKey(URI uri, String keyName) {
+        List<AccessKey> accessKeys = listsTheAccessKeys(uri).getAccessKeys();
+        return accessKeys.stream().filter(k -> Objects.equals(k.getName(), keyName))
+                .findFirst().orElse(null);
+    }
 }

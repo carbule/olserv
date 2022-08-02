@@ -28,6 +28,11 @@ public interface TaskTypeConst {
     String ALLOCATE_ACCOUNT_TO_SHADOWBOXES = "TASK1001";
 
     /**
+     * 在所有的 Shadowbox 上取消分配 Key
+     */
+    String UNALLOCATE_ACCOUNT_TO_SHADOWBOXES = "TASK1003";
+
+    /**
      * 为所有的 Account 分配 Key
      */
     String ALLOCATE_SHADOWBOX_TO_ACCOUNTS = "TASK2001";

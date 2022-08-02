@@ -1,12 +1,13 @@
 package cn.azhicloud.olserv.service.impl.autotask.hkptask;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import cn.azhicloud.olserv.constant.TaskTypeConst;
+import cn.azhicloud.olserv.infra.helper.ExecutorHelper;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
 import cn.azhicloud.olserv.model.outline.AccessKey;
@@ -49,8 +50,8 @@ public class AutoTaskHKP1002ServiceImpl implements AutoTaskExecuteService {
         List<Account> accounts = accountRepository.findAll();
         List<Shadowbox> shadowboxes = shadowboxRepository.findAll();
 
-        List<AccessKey> allKeys = new ArrayList<>();
-        for (Shadowbox shadowbox : shadowboxes) {
+        List<AccessKey> allKeys = new CopyOnWriteArrayList<>();
+        ExecutorHelper.execute(shadowboxes, shadowbox -> {
             try {
                 URI uri = URI.create(shadowbox.getApiUrl());
                 AccessKeys accessKeys = outlineRepository.listsTheAccessKeys(uri);
@@ -66,7 +67,7 @@ public class AutoTaskHKP1002ServiceImpl implements AutoTaskExecuteService {
             } catch (Exception e) {
                 log.error("obtain shadowbox bytes transferred failed", e);
             }
-        }
+        });
 
         for (Account account : accounts) {
             List<AccessKey> accountOwnedKeys = allKeys.stream()

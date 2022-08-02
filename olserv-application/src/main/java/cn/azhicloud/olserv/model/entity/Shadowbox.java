@@ -59,4 +59,10 @@ public class Shadowbox {
     public URI URI() {
         return URI.create(apiUrl);
     }
+
+    public void setAccessKey(AccessKey accessKey) {
+        if (accessKey != null) {
+            this.accessKeys = Collections.singletonList(accessKey);
+        }
+    }
 }

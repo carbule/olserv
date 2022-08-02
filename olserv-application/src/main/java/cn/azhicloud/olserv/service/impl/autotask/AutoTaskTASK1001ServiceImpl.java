@@ -8,7 +8,6 @@ import cn.azhicloud.olserv.infra.exception.BizException;
 import cn.azhicloud.olserv.infra.helper.ExecutorHelper;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Shadowbox;
-import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.repository.AccountRepository;
 import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.repository.ShadowboxRepository;
@@ -51,20 +50,7 @@ public class AutoTaskTASK1001ServiceImpl implements AutoTaskExecuteService {
         // 拆分成异步任务执行
         ExecutorHelper.execute(shadowboxes, box -> {
             try {
-                URI uri = URI.create(box.getApiUrl());
-                // 新增一个 key
-                AccessKey accessKey = outlineRepository.createsANewAccessKey(uri);
-
-                // 设置 key 的名称
-                AccessKey renameBody = new AccessKey();
-                renameBody.setName(account.getUsername());
-                try {
-                    outlineRepository.renamesAnAccessKey(uri, accessKey.getId(), renameBody);
-                } catch (Exception e) {
-                    // 如果设置名称失败，删除先前创建的 key
-                    outlineRepository.deletesAnAccessKey(uri, accessKey.getId());
-                    throw e;
-                }
+                outlineRepository.createAccessKey(URI.create(box.getApiUrl()), account.getUsername());
             } catch (Exception e) {
                 log.error("call api {} failed", box.getApiUrl(), e);
             }

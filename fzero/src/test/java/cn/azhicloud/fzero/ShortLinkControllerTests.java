@@ -33,7 +33,6 @@ public class ShortLinkControllerTests {
                     RequestEntity<String> request = RequestEntity.post(URI.create(to))
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(JSON.toJSONString(rq));
-
                     String response = REST_TEMPLATE.postForObject(to, request, String.class);
                     log.info(response);
                 }

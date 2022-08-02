@@ -132,8 +132,8 @@ public class AccountServiceImpl implements AccountService {
         for (Account account : all) {
             Subscribe sub = subscribeMap.get(account.getId());
             if (sub == null) {
-                // 生成自动任务 TASK3001 生成订阅链接和短链接
                 {
+                    // 生成自动任务 TASK3001 生成订阅链接和短链接
                     TaskTASK3001BO taskBO = new TaskTASK3001BO();
                     taskBO.setAccountId(account.getId());
                     autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.GENERATE_SUBSCRIBE_AND_SHORT_URL,
@@ -151,6 +151,8 @@ public class AccountServiceImpl implements AccountService {
     public List<Shadowbox> listShadowboxOwnedByAccount(String id) {
         Account account = accountRepository.findById(id).orElseThrow(() ->
                 BizException.format("账户不存在"));
+
+        // 记录账户拉取订阅的时间和访问 IP（可能通过 FZero 服务访问）
         account.setLastAccess(LocalDateTime.now());
         String fromIP = httpServletRequest.getHeader(REQUEST_HEADER_FROM_IP);
         if (StringUtils.isBlank(fromIP)) {
@@ -167,26 +169,17 @@ public class AccountServiceImpl implements AccountService {
                 URI uri = URI.create(box.getApiUrl());
                 // 如果服务端有变更，托管态实体自动更新
                 BeanUtils.copyProperties(outlineRepository.returnsInformationAboutTheServer(uri), box);
-                List<AccessKey> accessKeys = outlineRepository.listsTheAccessKeys(uri).getAccessKeys();
-                box.setAccessKeys(accessKeys);
+                box.setAccessKey(outlineRepository.getAccessKey(uri, account.getUsername()));
             } catch (Exception e) {
                 log.error("call api {} failed", box.getApiUrl(), e);
             }
         });
 
-        for (Iterator<Shadowbox> it = boxes.iterator(); it.hasNext(); ) {
-            Shadowbox box = it.next();
-            Optional<AccessKey> first = box.getAccessKeys().stream()
-                    .filter(k -> Objects.equals(account.getUsername(), k.getName()))
-                    .findFirst();
-
-            if (first.isPresent()) {
-                box.setAccessKeys(Collections.singletonList(first.get()));
-            } else {
-                it.remove();
-            }
-        }
-        boxes.sort(Comparator.comparing(Shadowbox::getName));
+        // 剔除未分配 Key 的服务器
+        boxes = boxes.stream()
+                .filter(shadowbox -> shadowbox.getAccessKeys().size() > 0)
+                .sorted(Comparator.comparing(Shadowbox::getName))
+                .collect(Collectors.toList());
 
         // 发送通知邮件
         autoTaskTASK2002(account, boxes);
