@@ -3,6 +3,7 @@ package cn.azhicloud.olserv.infra.helper;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -24,6 +25,9 @@ public class MailHelper {
     @Value("${alarm.mail.receiver}")
     private String alarmMailReceiver;
 
+    @Value("${spring.mail.generate-subject-no}")
+    private Boolean generateSubjectNo;
+
     private final JavaMailSender mailSender;
 
     /**
@@ -38,7 +42,7 @@ public class MailHelper {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("订阅通知" + "<" + mailFrom + ">");
         message.setTo(to);
-        message.setSubject(subject + " (" + NanoIdUtils.randomNanoId() + ")");
+        message.setSubject(beautifulSubject(subject));
         message.setText(content);
         mailSender.send(message);
     }
@@ -54,7 +58,7 @@ public class MailHelper {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom("系统预警" + "<" + mailFrom + ">");
             message.setTo(alarmMailReceiver);
-            message.setSubject(subject + " (" + NanoIdUtils.randomNanoId() + ")");
+            message.setSubject(beautifulSubject(subject));
             message.setText(content);
             mailSender.send(message);
         } catch (Exception e) {
@@ -62,4 +66,15 @@ public class MailHelper {
         }
     }
 
+    /**
+     * 包装邮件主题
+     * 1.主题编号的生成
+     *
+     * @param subject 主题
+     * @return 包装后的邮件主题
+     */
+    private String beautifulSubject(String subject) {
+        return subject + (BooleanUtils.isTrue(generateSubjectNo) ?
+                " (" + NanoIdUtils.randomNanoId() + ")" : "");
+    }
 }

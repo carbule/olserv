@@ -5,6 +5,8 @@ spring:
     url: jdbc:mysql://localhost:3306/olserv_dev?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
   activemq:
     broker-url: tcp://101.34.23.55:61617?jms.prefetchPolicy.queuePrefetch=10
+  mail:
+    generate-subject-no: false
 template:
   subscribe-link: http://127.0.0.1:8080/olserv/account/{0}/access-keys/subscribe
 service:

@@ -25,6 +25,8 @@ spring:
     username: notifier@azhicloud.cn
     password: password123KBL
     from: notifier@azhicloud.cn
+    # 是否生成主题编号（同主题的邮件会被分组）
+    generate-subject-no: false
 server:
   servlet:
     encoding:

@@ -11,7 +11,7 @@ import cn.azhicloud.olserv.model.outline.Server;
 import cn.azhicloud.olserv.repository.OutlineRepository;
 import cn.azhicloud.olserv.repository.ShadowboxRepository;
 import cn.azhicloud.olserv.service.ShadowboxService;
-import cn.azhicloud.olserv.service.impl.autotask.bo.TaskTASK2001BO;
+import cn.azhicloud.olserv.autotask.bo.TaskTASK2001BO;
 import cn.azhicloud.olserv.task.service.AutoTaskBaseService;
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
