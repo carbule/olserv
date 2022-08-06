@@ -32,6 +32,7 @@ public interface OutlineRepository {
      * @return server info
      */
     @GetMapping("/server")
+    @Cacheable(key = "#uri.toString()")
     Server returnsInformationAboutTheServer(URI uri);
 
     /**
@@ -142,5 +143,12 @@ public interface OutlineRepository {
         List<AccessKey> accessKeys = listsTheAccessKeys(uri).getAccessKeys();
         return accessKeys.stream().filter(k -> Objects.equals(k.getName(), keyName))
                 .findFirst().orElse(null);
+    }
+
+    /**
+     * 清空缓存
+     */
+    @CacheEvict(allEntries = true)
+    default void clearCache() {
     }
 }

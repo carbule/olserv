@@ -39,7 +39,15 @@ public class AutoTaskHKP1005ServiceImpl implements AutoTaskExecuteService {
             return;
         }
 
-        // account->shadowbox 维度拆分多线程任务
+        // 清空缓存
+        outlineRepository.clearCache();
+
+        // 缓存服务器信息
+        ExecutorHelper.execute(shadowboxes, shadowbox -> {
+            outlineRepository.returnsInformationAboutTheServer(shadowbox.URI());
+        });
+
+        // account->shadowbox 维度拆分多线程任务缓存 Key 信息
         ExecutorHelper.execute(accounts, shadowboxes, (account, shadowbox) -> {
             try {
                 outlineRepository.getAccessKey(shadowbox.URI(), account.getUsername());
