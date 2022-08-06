@@ -5,6 +5,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -29,6 +30,35 @@ public class ExecutorHelper {
         for (T t : elements) {
             executor.execute(() -> {
                 consumer.accept(t);
+                latch.countDown();
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 创建和集合大小相同的线程池，异步执行
+     *
+     * @param elements1 业务元素1
+     * @param elements2 业务元素2
+     * @param consumer  消费者
+     * @param <T1>      业务元素
+     * @param <T2>      业务元素
+     */
+    public static <T1, T2> void execute(List<T1> elements1, List<T2> elements2, BiConsumer<T1, T2> consumer) {
+        CountDownLatch latch = new CountDownLatch(elements1.size() * elements2.size());
+        ExecutorService executor = Executors.newCachedThreadPool();
+
+        for (T1 t1 : elements1) {
+            executor.execute(() -> {
+                for (T2 t2 : elements2) {
+                    consumer.accept(t1, t2);
+                    latch.countDown();
+                }
                 latch.countDown();
             });
         }

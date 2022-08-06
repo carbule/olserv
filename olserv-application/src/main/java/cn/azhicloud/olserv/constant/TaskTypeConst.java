@@ -23,6 +23,11 @@ public interface TaskTypeConst {
     String STATS_ACCOUNT_USED_TRAFFIC_OF_DAILY = "HKP1004";
 
     /**
+     * 缓存用户拥有的 Key
+     */
+    String CACHE_ACCOUNT_OWNED_KEYS = "HKP1005";
+
+    /**
      * 在所有的 Shadowbox 上分配 Key
      */
     String ALLOCATE_ACCOUNT_TO_SHADOWBOXES = "TASK1001";

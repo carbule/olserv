@@ -9,6 +9,10 @@ import cn.azhicloud.olserv.model.outline.AccessKey;
 import cn.azhicloud.olserv.model.outline.AccessKeys;
 import cn.azhicloud.olserv.model.outline.BytesTransferred;
 import cn.azhicloud.olserv.model.outline.Server;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2022/6/3 21:03
  */
 @FeignClient(value = "outline", url = "outline")
+@CacheConfig(cacheNames = "outline:repository")
 public interface OutlineRepository {
 
     /**
@@ -81,6 +86,7 @@ public interface OutlineRepository {
      * @param uri     api
      * @param keyName key name
      */
+    @CacheEvict(key = "#uri.toString() + #keyName")
     default void deleteAccessKey(URI uri, String keyName) {
         List<AccessKey> accessKeys = listsTheAccessKeys(uri).getAccessKeys();
 
@@ -97,6 +103,7 @@ public interface OutlineRepository {
      * @param keyName key name
      * @return key
      */
+    @CachePut(key = "#uri.toString() + #keyName")
     default AccessKey createAccessKey(URI uri, String keyName) {
         // Key 名称校验
         AccessKeys accessKeys = listsTheAccessKeys(uri);
@@ -130,6 +137,7 @@ public interface OutlineRepository {
      * @param keyName key name
      * @return key
      */
+    @Cacheable(key = "#uri.toString() + #keyName")
     default AccessKey getAccessKey(URI uri, String keyName) {
         List<AccessKey> accessKeys = listsTheAccessKeys(uri).getAccessKeys();
         return accessKeys.stream().filter(k -> Objects.equals(k.getName(), keyName))
