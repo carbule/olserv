@@ -44,7 +44,11 @@ public class AutoTaskHKP1005ServiceImpl implements AutoTaskExecuteService {
 
         // 缓存服务器信息
         ExecutorHelper.execute(shadowboxes, shadowbox -> {
-            outlineRepository.returnsInformationAboutTheServer(shadowbox.URI());
+            try {
+                outlineRepository.returnsInformationAboutTheServer(shadowbox.URI());
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
         });
 
         // account->shadowbox 维度拆分多线程任务缓存 Key 信息

@@ -29,8 +29,11 @@ public class ExecutorHelper {
 
         for (T t : elements) {
             executor.execute(() -> {
-                consumer.accept(t);
-                latch.countDown();
+                try {
+                    consumer.accept(t);
+                } finally {
+                    latch.countDown();
+                }
             });
         }
         try {
@@ -56,8 +59,11 @@ public class ExecutorHelper {
         for (T1 t1 : elements1) {
             executor.execute(() -> {
                 for (T2 t2 : elements2) {
-                    consumer.accept(t1, t2);
-                    latch.countDown();
+                    try {
+                        consumer.accept(t1, t2);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
                 latch.countDown();
             });
@@ -84,8 +90,11 @@ public class ExecutorHelper {
         List<R> results = new CopyOnWriteArrayList<>();
         for (T t : elements) {
             executor.execute(() -> {
-                results.add(function.apply(t));
-                latch.countDown();
+                try {
+                    results.add(function.apply(t));
+                } finally {
+                    latch.countDown();
+                }
             });
         }
         try {
