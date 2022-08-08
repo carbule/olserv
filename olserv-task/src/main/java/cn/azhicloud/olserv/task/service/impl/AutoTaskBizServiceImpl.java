@@ -2,6 +2,7 @@ package cn.azhicloud.olserv.task.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.*;
 
 import cn.azhicloud.olserv.infra.exception.BizException;
 import cn.azhicloud.olserv.infra.helper.MailHelper;
@@ -68,7 +69,15 @@ public class AutoTaskBizServiceImpl implements AutoTaskBizService {
                     AutoTaskExecuteService.class);
 
             // 开始执行
-            executeService.execute(task.getTaskData());
+            Future<?> submit = Executors.newCachedThreadPool().submit(() ->
+                    executeService.execute(task.getTaskData()));
+            // 任务执行如果超过 5 分钟，判定超时，中断该任务并抛出异常
+            try {
+                submit.get(5, TimeUnit.MINUTES);
+            } catch (Exception e) {
+                submit.cancel(Boolean.TRUE);
+                throw e;
+            }
         } catch (Exception e) {
             log.error("auto task execute failed", e);
             updateTaskToFailed(task, e);
