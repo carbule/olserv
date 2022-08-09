@@ -92,7 +92,7 @@ public class ExecutorHelper {
                 // 执行成功跳出循环，如果失败执行重试
                 return;
             } catch (Exception e) {
-                if (++retry < retryTime) {
+                if (++retry <= retryTime) {
                     log.error(e.getMessage());
                     log.error("execute failed, retry {} times", retry);
                     continue;
@@ -139,7 +139,7 @@ public class ExecutorHelper {
             try {
                 return function.apply(t);
             } catch (Exception e) {
-                if (++retry < retryTime) {
+                if (++retry <= retryTime) {
                     log.error(e.getMessage());
                     log.error("execute failed, retry {} times", retry);
                     continue;
