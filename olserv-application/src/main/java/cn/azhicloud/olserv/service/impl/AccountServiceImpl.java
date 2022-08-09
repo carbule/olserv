@@ -165,15 +165,11 @@ public class AccountServiceImpl implements AccountService {
 
         List<Shadowbox> boxes = shadowboxRepository.findAll();
         ExecutorHelper.execute(boxes, box -> {
-            try {
-                URI uri = URI.create(box.getApiUrl());
-                // 如果服务端有变更，托管态实体自动更新
-                BeanUtils.copyProperties(outlineRepository.returnsInformationAboutTheServer(uri), box);
-                box.setAccessKey(outlineRepository.getAccessKey(uri, account.getUsername()));
-            } catch (Exception e) {
-                log.error("call api {} failed", box.getApiUrl(), e);
-            }
-        });
+            URI uri = URI.create(box.getApiUrl());
+            // 如果服务端有变更，托管态实体自动更新
+            BeanUtils.copyProperties(outlineRepository.returnsInformationAboutTheServer(uri), box);
+            box.setAccessKey(outlineRepository.getAccessKey(uri, account.getUsername()));
+        }, ex -> log.error("获取 Key 失败：{}", ex.getMessage()));
 
         // 剔除未分配 Key 的服务器
         boxes = boxes.stream()

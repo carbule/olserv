@@ -30,6 +30,8 @@ public class AutoTaskHKP1005ServiceImpl implements AutoTaskExecuteService {
 
     private final AccountRepository accountRepository;
 
+    private static final int RETRY_TIME = 3;
+
     @Override
     public void execute(String taskData) {
         List<Account> accounts = accountRepository.findAll();
@@ -42,22 +44,13 @@ public class AutoTaskHKP1005ServiceImpl implements AutoTaskExecuteService {
         // 清空缓存
         outlineRepository.clearCache();
 
-        // 缓存服务器信息
         ExecutorHelper.execute(shadowboxes, shadowbox -> {
-            try {
-                outlineRepository.returnsInformationAboutTheServer(shadowbox.URI());
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
-        });
+            outlineRepository.returnsInformationAboutTheServer(shadowbox.URI());
+        }, ex -> log.error("缓存服务器信息失败：{}", ex.getMessage()), RETRY_TIME);
 
-        // account->shadowbox 维度拆分多线程任务缓存 Key 信息
+
         ExecutorHelper.execute(accounts, shadowboxes, (account, shadowbox) -> {
-            try {
-                outlineRepository.getAccessKey(shadowbox.URI(), account.getUsername());
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
-        });
+            outlineRepository.getAccessKey(shadowbox.URI(), account.getUsername());
+        }, ex -> log.error("缓存 Key 信息失败：{}", ex.getMessage()), RETRY_TIME);
     }
 }

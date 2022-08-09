@@ -52,22 +52,18 @@ public class AutoTaskHKP1002ServiceImpl implements AutoTaskExecuteService {
 
         List<AccessKey> allKeys = new CopyOnWriteArrayList<>();
         ExecutorHelper.execute(shadowboxes, shadowbox -> {
-            try {
-                URI uri = URI.create(shadowbox.getApiUrl());
-                AccessKeys accessKeys = outlineRepository.listsTheAccessKeys(uri);
-                BytesTransferred bytesTransferred = outlineRepository.returnsTheDataTransferredPerAccessKey(uri);
+            URI uri = URI.create(shadowbox.getApiUrl());
+            AccessKeys accessKeys = outlineRepository.listsTheAccessKeys(uri);
+            BytesTransferred bytesTransferred = outlineRepository.returnsTheDataTransferredPerAccessKey(uri);
 
-                // 根据 keyId 获取使用流量数
-                accessKeys.getAccessKeys().forEach(k -> {
-                    k.setApiUri(uri);
-                    k.setBytesTransferred(bytesTransferred.getBytesTransferredByUserId()
-                            .getOrDefault(k.getId(), 0L));
-                });
-                allKeys.addAll(accessKeys.getAccessKeys());
-            } catch (Exception e) {
-                log.error("obtain shadowbox bytes transferred failed", e);
-            }
-        });
+            // 根据 keyId 获取使用流量数
+            accessKeys.getAccessKeys().forEach(k -> {
+                k.setApiUri(uri);
+                k.setBytesTransferred(bytesTransferred.getBytesTransferredByUserId()
+                        .getOrDefault(k.getId(), 0L));
+            });
+            allKeys.addAll(accessKeys.getAccessKeys());
+        }, ex -> log.error("统计流量失败：{}", ex.getMessage()));
 
         for (Account account : accounts) {
             List<AccessKey> accountOwnedKeys = allKeys.stream()

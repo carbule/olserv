@@ -9,28 +9,182 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author zhouzhifeng
  * @version 1.0
  * @since 2022/7/17 14:30
  */
+@Slf4j
 public class ExecutorHelper {
 
     /**
-     * 创建和集合大小相同的线程池，异步执行
-     *
-     * @param elements 业务元素
-     * @param consumer 消费者
-     * @param <T>      业务对象
+     * 任务执行失败默认重试次数
      */
-    public static <T> void execute(List<T> elements, Consumer<T> consumer) {
-        CountDownLatch latch = new CountDownLatch(elements.size());
-        ExecutorService executor = Executors.newCachedThreadPool();
+    public static final int DEFAULT_RETRY_TIME = 0;
 
-        for (T t : elements) {
-            executor.execute(() -> {
+    /**
+     * 任务执行所用线程池
+     */
+    public static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+
+    /**
+     * 单任务执行
+     *
+     * @param t         入参
+     * @param consumer  实现
+     * @param retryTime 重试次数
+     * @param <T>       入参泛型
+     */
+    protected static <T> void execute(T t, Consumer<T> consumer, int retryTime) {
+        int retry = 0;
+        for (; ; ) {
+            try {
+                consumer.accept(t);
+                // 执行成功跳出循环，如果失败执行重试
+                return;
+            } catch (Exception e) {
+                if (++retry <= retryTime) {
+                    log.error(e.getMessage());
+                    log.error("execute failed, retry {} times", retry);
+                    continue;
+                }
+                // 规定重试次数内依然失败，抛出异常
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * 单任务执行
+     *
+     * @param t                 入参
+     * @param consumer          实现
+     * @param exceptionConsumer 重试失败后的异常处理
+     * @param retryTime         重试次数
+     * @param <T>               入参泛型
+     */
+    protected static <T> void execute(T t, Consumer<T> consumer, Consumer<Exception> exceptionConsumer, int retryTime) {
+        try {
+            execute(t, consumer, retryTime);
+        } catch (Exception e) {
+            exceptionConsumer.accept(e);
+        }
+    }
+
+    /**
+     * 单任务执行
+     *
+     * @param t         入参 1
+     * @param u         入参 2
+     * @param consumer  实现
+     * @param retryTime 重试次数
+     * @param <T>       入参 1 泛型
+     * @param <U>       入参 2 泛型
+     */
+    protected static <T, U> void execute(T t, U u, BiConsumer<T, U> consumer, int retryTime) {
+        int retry = 0;
+        for (; ; ) {
+            try {
+                consumer.accept(t, u);
+                // 执行成功跳出循环，如果失败执行重试
+                return;
+            } catch (Exception e) {
+                if (++retry < retryTime) {
+                    log.error(e.getMessage());
+                    log.error("execute failed, retry {} times", retry);
+                    continue;
+                }
+                // 规定重试次数内依然失败，抛出异常
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * 单任务执行
+     *
+     * @param t                 入参 1
+     * @param u                 入参 2
+     * @param consumer          实现
+     * @param exceptionConsumer 重试失败后的异常处理
+     * @param retryTime         重试次数
+     * @param <T>               入参 1 泛型
+     * @param <U>               入参 2 泛型
+     */
+    protected static <T, U> void execute(T t, U u, BiConsumer<T, U> consumer,
+                                         Consumer<Exception> exceptionConsumer, int retryTime) {
+        try {
+            execute(t, u, consumer, retryTime);
+        } catch (Exception e) {
+            exceptionConsumer.accept(e);
+        }
+    }
+
+    /**
+     * 单任务执行
+     *
+     * @param t         入参
+     * @param function  实现
+     * @param retryTime 重试次数
+     * @param <T>       入参泛型
+     * @param <R>       返回值泛型
+     * @return 任务执行完成返回内容
+     */
+    protected static <T, R> R execute(T t, Function<T, R> function, int retryTime) {
+        int retry = 0;
+        for (; ; ) {
+            try {
+                return function.apply(t);
+            } catch (Exception e) {
+                if (++retry < retryTime) {
+                    log.error(e.getMessage());
+                    log.error("execute failed, retry {} times", retry);
+                    continue;
+                }
+                // 规定重试次数内依然失败，抛出异常
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * 单任务执行
+     *
+     * @param t                 入参
+     * @param function          实现
+     * @param exceptionConsumer 重试失败后的异常处理
+     * @param retryTime         重试次数
+     * @param <T>               入参泛型
+     * @param <R>               返回值泛型
+     * @return 任务执行完成返回内容
+     */
+    protected static <T, R> R execute(T t, Function<T, R> function,
+                                      Consumer<Exception> exceptionConsumer, int retryTime) {
+        try {
+            return execute(t, function, retryTime);
+        } catch (Exception e) {
+            exceptionConsumer.accept(e);
+            return null;
+        }
+    }
+
+    /**
+     * 多任务多线程拆分执行
+     *
+     * @param listT     入参
+     * @param consumer  实现
+     * @param retryTime 重试次数
+     * @param <T>       入参泛型
+     */
+    public static <T> void execute(List<T> listT, Consumer<T> consumer, int retryTime) {
+        CountDownLatch latch = new CountDownLatch(listT.size());
+
+        for (T t : listT) {
+            EXECUTOR.execute(() -> {
                 try {
-                    consumer.accept(t);
+                    execute(t, consumer, retryTime);
                 } finally {
                     latch.countDown();
                 }
@@ -44,23 +198,69 @@ public class ExecutorHelper {
     }
 
     /**
-     * 创建和集合大小相同的线程池，异步执行
+     * 多任务多线程拆分执行
      *
-     * @param elements1 业务元素1
-     * @param elements2 业务元素2
-     * @param consumer  消费者
-     * @param <T1>      业务元素
-     * @param <T2>      业务元素
+     * @param listT             入参
+     * @param consumer          实现
+     * @param exceptionConsumer 重试失败后的异常处理
+     * @param retryTime         重试次数
+     * @param <T>               入参泛型
      */
-    public static <T1, T2> void execute(List<T1> elements1, List<T2> elements2, BiConsumer<T1, T2> consumer) {
-        CountDownLatch latch = new CountDownLatch(elements1.size() * elements2.size());
-        ExecutorService executor = Executors.newCachedThreadPool();
+    public static <T> void execute(List<T> listT, Consumer<T> consumer,
+                                   Consumer<Exception> exceptionConsumer, int retryTime) {
+        try {
+            execute(listT, consumer, retryTime);
+        } catch (Exception e) {
+            exceptionConsumer.accept(e);
+        }
+    }
 
-        for (T1 t1 : elements1) {
-            executor.execute(() -> {
-                for (T2 t2 : elements2) {
+    /**
+     * 多任务多线程拆分执行
+     *
+     * @param listT    入参
+     * @param consumer 实现
+     * @param <T>      入参泛型
+     */
+    public static <T> void execute(List<T> listT, Consumer<T> consumer) {
+        execute(listT, consumer, DEFAULT_RETRY_TIME);
+    }
+
+    /**
+     * 多任务多线程拆分执行
+     *
+     * @param listT             入参
+     * @param consumer          实现
+     * @param exceptionConsumer 重试失败后的异常处理
+     * @param <T>               入参泛型
+     */
+    public static <T> void execute(List<T> listT, Consumer<T> consumer,
+                                   Consumer<Exception> exceptionConsumer) {
+        try {
+            execute(listT, consumer);
+        } catch (Exception e) {
+            exceptionConsumer.accept(e);
+        }
+    }
+
+    /**
+     * 多任务多线程拆分执行
+     *
+     * @param listT     入参 1
+     * @param listU     入参 2
+     * @param consumer  实现
+     * @param retryTime 重试次数
+     * @param <T>       入参 1 泛型
+     * @param <U>       入参 2 泛型
+     */
+    public static <T, U> void execute(List<T> listT, List<U> listU, BiConsumer<T, U> consumer, int retryTime) {
+        CountDownLatch latch = new CountDownLatch(listT.size() * listU.size());
+
+        for (T t : listT) {
+            EXECUTOR.execute(() -> {
+                for (U u : listU) {
                     try {
-                        consumer.accept(t1, t2);
+                        execute(t, u, consumer, retryTime);
                     } finally {
                         latch.countDown();
                     }
@@ -76,22 +276,75 @@ public class ExecutorHelper {
     }
 
     /**
-     * 创建和集合大小相同的线程池，异步执行
+     * 多任务多线程拆分执行
      *
-     * @param elements 业务元素
-     * @param function 业务代码
-     * @param <T>      业务对象
-     * @return 执行结果
+     * @param listT             入参 1
+     * @param listU             入参 2
+     * @param consumer          实现
+     * @param exceptionConsumer 重试失败后的异常处理
+     * @param retryTime         重试次数
+     * @param <T>               入参 1 泛型
+     * @param <U>               入参 2 泛型
      */
-    public static <T, R> List<R> execute(List<T> elements, Function<T, R> function) {
-        CountDownLatch latch = new CountDownLatch(elements.size());
-        ExecutorService executor = Executors.newCachedThreadPool();
+    public static <T, U> void execute(List<T> listT, List<U> listU, BiConsumer<T, U> consumer,
+                                      Consumer<Exception> exceptionConsumer, int retryTime) {
+        try {
+            execute(listT, listU, consumer, retryTime);
+        } catch (Exception e) {
+            exceptionConsumer.accept(e);
+        }
+    }
+
+    /**
+     * 多任务多线程拆分执行
+     *
+     * @param listT    入参 1
+     * @param listU    入参 2
+     * @param consumer 实现
+     * @param <T>      入参 1 泛型
+     * @param <U>      入参 2 泛型
+     */
+    public static <T, U> void execute(List<T> listT, List<U> listU, BiConsumer<T, U> consumer) {
+        execute(listT, listU, consumer, DEFAULT_RETRY_TIME);
+    }
+
+    /**
+     * 多任务多线程拆分执行
+     *
+     * @param listT             入参 1
+     * @param listU             入参 2
+     * @param consumer          实现
+     * @param exceptionConsumer 重试失败后的异常处理
+     * @param <T>               入参 1 泛型
+     * @param <U>               入参 2 泛型
+     */
+    public static <T, U> void execute(List<T> listT, List<U> listU, BiConsumer<T, U> consumer,
+                                      Consumer<Exception> exceptionConsumer) {
+        try {
+            execute(listT, listU, consumer);
+        } catch (Exception e) {
+            exceptionConsumer.accept(e);
+        }
+    }
+
+    /**
+     * 多任务多线程拆分执行
+     *
+     * @param listT     入参
+     * @param function  实现
+     * @param retryTime 重试次数
+     * @param <T>       入参泛型
+     * @param <R>       返回值泛型
+     * @return 任务执行完成返回内容
+     */
+    public static <T, R> List<R> execute(List<T> listT, Function<T, R> function, int retryTime) {
+        CountDownLatch latch = new CountDownLatch(listT.size());
 
         List<R> results = new CopyOnWriteArrayList<>();
-        for (T t : elements) {
-            executor.execute(() -> {
+        for (T t : listT) {
+            EXECUTOR.execute(() -> {
                 try {
-                    results.add(function.apply(t));
+                    results.add(execute(t, function, retryTime));
                 } finally {
                     latch.countDown();
                 }
@@ -102,6 +355,58 @@ public class ExecutorHelper {
             return results;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 多任务多线程拆分执行
+     *
+     * @param listT             入参
+     * @param function          实现
+     * @param exceptionConsumer 重试失败后的异常处理
+     * @param retryTime         重试次数
+     * @param <T>               入参泛型
+     * @param <R>               返回值泛型
+     * @return 任务执行完成返回内容
+     */
+    public static <T, R> List<R> execute(List<T> listT, Function<T, R> function,
+                                         Consumer<Exception> exceptionConsumer, int retryTime) {
+        try {
+            return execute(listT, function, retryTime);
+        } catch (Exception e) {
+            exceptionConsumer.accept(e);
+            return null;
+        }
+    }
+
+    /**
+     * 多任务多线程拆分执行
+     *
+     * @param listT    入参
+     * @param function 实现
+     * @param <T>      入参泛型
+     * @param <R>      返回值泛型
+     */
+    public static <T, R> List<R> execute(List<T> listT, Function<T, R> function) {
+        return execute(listT, function, DEFAULT_RETRY_TIME);
+    }
+
+    /**
+     * 多任务多线程拆分执行
+     *
+     * @param listT             入参
+     * @param function          实现
+     * @param exceptionConsumer 重试失败后的异常处理
+     * @param <T>               入参泛型
+     * @param <R>               返回值泛型
+     */
+    public static <T, R> List<R> execute(List<T> listT, Function<T, R> function,
+                                         Consumer<Exception> exceptionConsumer) {
+        try {
+            return execute(listT, function);
+        } catch (Exception e) {
+            exceptionConsumer.accept(e);
+            return null;
         }
     }
 }

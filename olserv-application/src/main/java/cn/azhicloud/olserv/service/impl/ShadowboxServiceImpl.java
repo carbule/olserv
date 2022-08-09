@@ -64,18 +64,13 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         List<Shadowbox> shadowboxes = shadowboxRepository.findAll();
 
         return ExecutorHelper.execute(shadowboxes, box -> {
-            try {
-                URI uri = URI.create(box.getApiUrl());
-                // 如果服务端有变更，托管态实体自动更新
-                BeanUtils.copyProperties(outlineRepository.returnsInformationAboutTheServer(uri), box);
-                box.setAccessKeys(outlineRepository.listsTheAccessKeys(uri)
-                        .getAccessKeys());
-            } catch (Exception e) {
-                log.error("call api {} failed", box.getApiUrl(), e);
-            }
-
+            URI uri = URI.create(box.getApiUrl());
+            // 如果服务端有变更，托管态实体自动更新
+            BeanUtils.copyProperties(outlineRepository.returnsInformationAboutTheServer(uri), box);
+            box.setAccessKeys(outlineRepository.listsTheAccessKeys(uri)
+                    .getAccessKeys());
             return box;
-        });
+        }, ex -> log.error("获取 Key 失败：{}", ex.getMessage()));
     }
 
 }

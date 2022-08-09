@@ -48,12 +48,8 @@ public class AutoTaskTASK1003ServiceImpl implements AutoTaskExecuteService {
 
         List<Shadowbox> shadowboxes = shadowboxRepository.findAll();
         ExecutorHelper.execute(shadowboxes, shadowbox -> {
-            try {
-                outlineRepository.deleteAccessKey(URI.create(shadowbox.getApiUrl()), account.getUsername());
-            } catch (Exception ex) {
-                log.error("call api {} delete access key failed", shadowbox.getApiUrl(), ex);
-            }
-        });
+            outlineRepository.deleteAccessKey(URI.create(shadowbox.getApiUrl()), account.getUsername());
+        }, ex -> log.error("删除 Key 失败：{}", ex.getMessage()), 3);
 
         accountRepository.delete(account);
         Subscribe subscribe = subscribeRepository.findByAccountId(account.getId());
