@@ -47,8 +47,9 @@ public class AutoTaskTASK2001ServiceImpl implements AutoTaskExecuteService {
         List<Account> accounts = accountRepository.findAll();
         // 拆分异步任务执行
         ExecutorHelper.execute(accounts, account -> {
-            outlineRepository.createAccessKey(URI.create(shadowbox.getApiUrl()), account.getUsername());
-        }, ex -> log.error("创建 Key 失败：{}", ex.getMessage()), 3);
+                    outlineRepository.createAccessKey(URI.create(shadowbox.getApiUrl()), account.getUsername());
+                }, 3,
+                ex -> log.error("创建 Key 失败：{}", ex.getMessage()));
 
         // 创建自动任务 NOTICE1002 通知所有用户拉取最新订阅
         TaskNOTICE1002BO newTaskBO = new TaskNOTICE1002BO();

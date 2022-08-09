@@ -45,12 +45,14 @@ public class AutoTaskHKP1005ServiceImpl implements AutoTaskExecuteService {
         outlineRepository.clearCache();
 
         ExecutorHelper.execute(shadowboxes, shadowbox -> {
-            outlineRepository.returnsInformationAboutTheServer(shadowbox.URI());
-        }, ex -> log.error("缓存服务器信息失败：{}", ex.getMessage()), RETRY_TIME);
+                    outlineRepository.returnsInformationAboutTheServer(shadowbox.URI());
+                }, RETRY_TIME,
+                ex -> log.error("缓存服务器信息失败：{}", ex.getMessage()));
 
 
         ExecutorHelper.execute(accounts, shadowboxes, (account, shadowbox) -> {
-            outlineRepository.getAccessKey(shadowbox.URI(), account.getUsername());
-        }, ex -> log.error("缓存 Key 信息失败：{}", ex.getMessage()), RETRY_TIME);
+                    outlineRepository.getAccessKey(shadowbox.URI(), account.getUsername());
+                }, RETRY_TIME,
+                ex -> log.error("缓存 Key 信息失败：{}", ex.getMessage()));
     }
 }

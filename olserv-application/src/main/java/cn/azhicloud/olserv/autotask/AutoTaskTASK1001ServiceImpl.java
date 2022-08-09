@@ -49,8 +49,9 @@ public class AutoTaskTASK1001ServiceImpl implements AutoTaskExecuteService {
         List<Shadowbox> shadowboxes = shadowboxRepository.findAll();
         // 拆分成异步任务执行
         ExecutorHelper.execute(shadowboxes, box -> {
-            outlineRepository.createAccessKey(URI.create(box.getApiUrl()), account.getUsername());
-        }, ex -> log.error("创建 Key 失败：{}", ex.getMessage()), 3);
+                    outlineRepository.createAccessKey(URI.create(box.getApiUrl()), account.getUsername());
+                }, 3,
+                ex -> log.error("创建 Key 失败：{}", ex.getMessage()));
 
         if (taskBO.isResetTraffic()) {
             // 创建自动任务 NOTICE1006 通知用户流量已重置
