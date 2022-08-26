@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/short-link")
 public class ShortLinkController {
 
-    @Value("${hzero.service}")
-    private String hzeroService;
+    @Value("${fzero.service}")
+    private String fzeroService;
 
     private final ShortLinkRepository shortLinkRepository;
 
@@ -41,6 +41,6 @@ public class ShortLinkController {
         shortLink.setLink(rq.getLink());
         shortLinkRepository.save(shortLink);
 
-        return MessageFormat.format(hzeroService, shortLink.getCode());
+        return MessageFormat.format(fzeroService, shortLink.getCode());
     }
 }
