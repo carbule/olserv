@@ -1,8 +1,8 @@
 spring:
   datasource:
-    username: root
-    password: 123456
-    url: jdbc:mysql://localhost:3306/olserv_dev?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: adm
+    password: pwd@123
+    url: jdbc:mysql://101.34.23.55/olserv_dev?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
   activemq:
     broker-url: tcp://101.34.23.55:61617?jms.prefetchPolicy.queuePrefetch=10
   mail:
