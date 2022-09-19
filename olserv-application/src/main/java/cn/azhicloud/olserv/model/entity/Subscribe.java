@@ -1,9 +1,7 @@
 package cn.azhicloud.olserv.model.entity;
 
 import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import lombok.Data;
 
@@ -17,6 +15,7 @@ import lombok.Data;
 public class Subscribe {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private LocalDateTime createdAt;
@@ -32,10 +31,4 @@ public class Subscribe {
      */
     @Column(nullable = false, unique = true)
     private String subscribeLink;
-
-    /**
-     * 订阅短链接
-     */
-    @Column(nullable = false, unique = true)
-    private String shortLink;
 }

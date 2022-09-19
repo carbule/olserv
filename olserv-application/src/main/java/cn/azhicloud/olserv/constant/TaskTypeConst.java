@@ -18,11 +18,6 @@ public interface TaskTypeConst {
     String DO_HOUSEKEEPING_FOR_OUT_OF_TRAFFIC_ACCOUNT = "HKP1002";
 
     /**
-     * 统计账户每日使用流量
-     */
-    String STATS_ACCOUNT_USED_TRAFFIC_OF_DAILY = "HKP1004";
-
-    /**
      * 缓存用户拥有的 Key
      */
     String CACHE_ACCOUNT_OWNED_KEYS = "HKP1005";

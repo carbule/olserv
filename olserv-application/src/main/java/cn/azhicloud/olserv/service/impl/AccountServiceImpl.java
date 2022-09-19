@@ -6,32 +6,35 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
-import cn.azhicloud.olserv.constant.TaskTypeConst;
-import cn.azhicloud.olserv.infra.BizType;
-import cn.azhicloud.olserv.infra.exception.BizException;
-import cn.azhicloud.olserv.infra.helper.ExecutorHelper;
-import cn.azhicloud.olserv.model.CreateAccountRQ;
-import cn.azhicloud.olserv.model.CreateShortLinkRQ;
-import cn.azhicloud.olserv.model.entity.Account;
-import cn.azhicloud.olserv.model.entity.Shadowbox;
-import cn.azhicloud.olserv.model.entity.Subscribe;
-import cn.azhicloud.olserv.model.outline.AccessKey;
-import cn.azhicloud.olserv.repository.*;
-import cn.azhicloud.olserv.service.AccountService;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK1001BO;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK2002BO;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK2003BO;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK3001BO;
+import cn.azhicloud.olserv.constant.TaskTypeConst;
+import cn.azhicloud.olserv.infra.exception.BizException;
+import cn.azhicloud.olserv.infra.helper.ExecutorHelper;
+import cn.azhicloud.olserv.model.CreateAccountRQ;
+import cn.azhicloud.olserv.model.entity.Account;
+import cn.azhicloud.olserv.model.entity.Shadowbox;
+import cn.azhicloud.olserv.model.entity.Subscribe;
+import cn.azhicloud.olserv.model.outline.AccessKey;
+import cn.azhicloud.olserv.repository.AccountRepository;
+import cn.azhicloud.olserv.repository.OutlineRepository;
+import cn.azhicloud.olserv.repository.ShadowboxRepository;
+import cn.azhicloud.olserv.repository.SubscribeRepository;
+import cn.azhicloud.olserv.service.AccountService;
 import cn.azhicloud.olserv.task.service.AutoTaskBaseService;
 import cn.hutool.extra.servlet.ServletUtil;
 import com.alibaba.fastjson.JSON;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import com.xiaoju.uemc.tinyid.client.utils.TinyId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -65,8 +68,6 @@ public class AccountServiceImpl implements AccountService {
     private String accountSubscribeUrlTemplate;
 
     private final SubscribeRepository subscribeRepository;
-
-    private final ShortLinkRepository shortLinkRepository;
 
     private final ShadowboxRepository shadowboxRepository;
 
@@ -104,17 +105,10 @@ public class AccountServiceImpl implements AccountService {
 
     protected void generateSubscribeAndShortLink(Account account) {
         String subscribeLink = MessageFormat.format(accountSubscribeUrlTemplate, account.getId());
-        // 调用外部系统创建短链接
-        CreateShortLinkRQ rq = new CreateShortLinkRQ();
-        rq.setLink(subscribeLink);
-        String shortLink = shortLinkRepository.createShortLink(rq);
-
         Subscribe sub = new Subscribe();
-        sub.setId(TinyId.nextId(BizType.APPLICATION));
         sub.setCreatedAt(LocalDateTime.now());
         sub.setAccountId(account.getId());
         sub.setSubscribeLink(subscribeLink);
-        sub.setShortLink(shortLink);
         subscribeRepository.save(sub);
 
         account.setSubscribe(sub);

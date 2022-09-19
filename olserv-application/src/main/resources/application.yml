@@ -43,5 +43,3 @@ logging:
     name: /var/log/olserv.log
 template:
   subscribe-link: http://interface.azhicloud.cn:9999/olserv/account/{0}/access-keys/subscribe
-service:
-  fzero: http://interface.azhicloud.cn:9999/0000

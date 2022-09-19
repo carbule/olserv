@@ -3,19 +3,15 @@ package cn.azhicloud.olserv.autotask;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 
+import cn.azhicloud.olserv.autotask.bo.TaskTASK3001BO;
 import cn.azhicloud.olserv.constant.TaskTypeConst;
-import cn.azhicloud.olserv.infra.BizType;
 import cn.azhicloud.olserv.infra.exception.BizException;
-import cn.azhicloud.olserv.model.CreateShortLinkRQ;
 import cn.azhicloud.olserv.model.entity.Account;
 import cn.azhicloud.olserv.model.entity.Subscribe;
 import cn.azhicloud.olserv.repository.AccountRepository;
-import cn.azhicloud.olserv.repository.ShortLinkRepository;
 import cn.azhicloud.olserv.repository.SubscribeRepository;
-import cn.azhicloud.olserv.autotask.bo.TaskTASK3001BO;
 import cn.azhicloud.olserv.task.service.AutoTaskExecuteService;
 import com.alibaba.fastjson.JSON;
-import com.xiaoju.uemc.tinyid.client.utils.TinyId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,8 +35,6 @@ public class AutoTaskTASK3001ServiceImpl implements AutoTaskExecuteService {
 
     private final SubscribeRepository subscribeRepository;
 
-    private final ShortLinkRepository shortLinkRepository;
-
     @Override
     @Transactional
     public void execute(String taskData) {
@@ -55,15 +49,9 @@ public class AutoTaskTASK3001ServiceImpl implements AutoTaskExecuteService {
         }
 
         subscribe = new Subscribe();
-        subscribe.setId(TinyId.nextId(BizType.APPLICATION));
         subscribe.setCreatedAt(LocalDateTime.now());
         subscribe.setAccountId(account.getId());
         subscribe.setSubscribeLink(MessageFormat.format(subscribeLinkTMPL, account.getId()));
-
-        // 创建短链接
-        CreateShortLinkRQ rq = new CreateShortLinkRQ();
-        rq.setLink(subscribe.getSubscribeLink());
-        subscribe.setShortLink(shortLinkRepository.createShortLink(rq));
 
         subscribeRepository.save(subscribe);
     }

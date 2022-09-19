@@ -9,5 +9,3 @@ spring:
     generate-subject-no: false
 template:
   subscribe-link: http://127.0.0.1:8080/olserv/account/{0}/access-keys/subscribe
-service:
-  fzero: http://localhost:8070/0000
