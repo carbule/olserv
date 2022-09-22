@@ -4,7 +4,7 @@ spring:
     password: pwd@123
     url: jdbc:mysql://101.34.23.55/olserv_dev?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
   activemq:
-    broker-url: tcp://101.34.23.55:61617?jms.prefetchPolicy.queuePrefetch=10
+    broker-url: tcp://101.34.23.55:61617
   mail:
     generate-subject-no: false
 template:
