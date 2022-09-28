@@ -14,7 +14,7 @@ spring:
   jackson:
     default-property-inclusion: NON_NULL
   activemq:
-    broker-url: tcp://101.34.23.55:61616
+    broker-url: tcp://101.34.23.55:61616?wireFormat.maxInactivityDuration=0
     in-memory: false
     packages:
       trust-all: false
