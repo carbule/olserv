@@ -7,6 +7,8 @@ package cn.azhicloud.olserv.constant;
  */
 public interface TaskTypeConst {
 
+    // Housekeeping 任务
+
     String DO_HOUSEKEEPING_FOR_EXPIRED_ACCOUNT = "HKP1001";
     String DO_HOUSEKEEPING_FOR_EXPIRED_ACCOUNT_DESC = "处理过期账户";
 
@@ -16,11 +18,15 @@ public interface TaskTypeConst {
     String CACHE_ACCOUNT_OWNED_KEYS = "HKP1005";
     String CACHE_ACCOUNT_OWNED_KEYS_DESC = "缓存用户拥有的 Key";
 
+    // 服务器任务
+
     String ALLOCATE_ACCOUNT_TO_SHADOWBOXES = "TASK1001";
     String ALLOCATE_ACCOUNT_TO_SHADOWBOXES_DESC = "在所有的 Shadowbox 上分配 Key";
 
     String UNALLOCATE_ACCOUNT_TO_SHADOWBOXES = "TASK1003";
     String UNALLOCATE_ACCOUNT_TO_SHADOWBOXES_DESC = "在所有的 Shadowbox 上取消分配 Key";
+
+    // 账户任务
 
     String ALLOCATE_SHADOWBOX_TO_ACCOUNTS = "TASK2001";
     String ALLOCATE_SHADOWBOX_TO_ACCOUNTS_DESC = "为所有的 Account 分配 Key";
@@ -31,8 +37,12 @@ public interface TaskTypeConst {
     String SAVE_ACCOUNT_PULL_SUBSCRIBE_LOCATION = "TASK2003";
     String SAVE_ACCOUNT_PULL_SUBSCRIBE_LOCATION_DESC = "获取账户获取订阅的地理位置";
 
+    // 订阅任务
+
     String GENERATE_SUBSCRIBE_AND_SHORT_URL = "TASK3001";
     String GENERATE_SUBSCRIBE_AND_SHORT_URL_DESC = "生成订阅链接和短链接 URL";
+
+    // 通知任务
 
     String NOTICE_ACCOUNT_CREATED = "NOTICE1001";
     String NOTICE_ACCOUNT_CREATED_DESC = "通知用户账户已经创建";

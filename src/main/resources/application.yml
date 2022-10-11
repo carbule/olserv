@@ -18,6 +18,9 @@ spring:
     in-memory: false
     packages:
       trust-all: false
+  jms:
+    listener:
+      concurrency: 5
   mail:
     host: smtp.qiye.aliyun.com
     port: 465
