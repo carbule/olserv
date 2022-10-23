@@ -41,14 +41,14 @@ public class AutoTaskHKP1001ServiceImpl implements AutoTaskExecuteService {
                     // 创建自动任务 NOTICE1004 发送邮件通知
                     TaskNOTICE1004BO taskBO = new TaskNOTICE1004BO();
                     taskBO.setAccountId(account.getId());
-                    autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.NOTICE_ACCOUNT_EXPIRED,
+                    autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.NOTICE_ACCOUNT_EXPIRED,
                             JSON.toJSONString(taskBO));
                 }
                 {
                     // 创建自动任务 TASK1003 删除账户
                     TaskTASK1003BO taskBO = new TaskTASK1003BO();
                     taskBO.setAccountId(account.getId());
-                    autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.UNALLOCATE_ACCOUNT_TO_SHADOWBOXES,
+                    autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.UNALLOCATE_ACCOUNT_TO_SHADOWBOXES,
                             JSON.toJSONString(taskBO));
                 }
             }

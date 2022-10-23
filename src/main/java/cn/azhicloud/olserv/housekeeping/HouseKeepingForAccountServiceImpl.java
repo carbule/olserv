@@ -23,7 +23,7 @@ public class HouseKeepingForAccountServiceImpl implements HouseKeepingService {
 
     @Override
     public void doHousekeeping() {
-        autoTaskBaseService.createAutoTaskAndPublicMQ(
+        autoTaskBaseService.createAutoTaskAndPublishMQ(
                 TaskTypeConst.DO_HOUSEKEEPING_FOR_EXPIRED_ACCOUNT, null);
     }
 }

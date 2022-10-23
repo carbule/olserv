@@ -57,13 +57,13 @@ public class AutoTaskTASK1001ServiceImpl implements AutoTaskExecuteService {
             // 创建自动任务 NOTICE1006 通知用户流量已重置
             TaskNOTICE1006BO newTaskBO = new TaskNOTICE1006BO();
             newTaskBO.setAccountId(account.getId());
-            autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.NOTICE_ACCOUNT_TRAFFIC_RESET,
+            autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.NOTICE_ACCOUNT_TRAFFIC_RESET,
                     JSON.toJSONString(newTaskBO));
         } else {
             // 创建自动任务 NOTICE1001 通知用户账户已创建
             TaskNOTICE1001BO newTaskBO = new TaskNOTICE1001BO();
             newTaskBO.setAccountId(account.getId());
-            autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.NOTICE_ACCOUNT_CREATED,
+            autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.NOTICE_ACCOUNT_CREATED,
                     JSON.toJSONString(newTaskBO));
         }
     }

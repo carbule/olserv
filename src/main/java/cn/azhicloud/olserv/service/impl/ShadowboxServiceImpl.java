@@ -52,7 +52,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
 
         TaskTASK2001BO taskBO = new TaskTASK2001BO();
         taskBO.setApiUrl(shadowbox.getApiUrl());
-        autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.ALLOCATE_SHADOWBOX_TO_ACCOUNTS,
+        autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.ALLOCATE_SHADOWBOX_TO_ACCOUNTS,
                 JSON.toJSONString(taskBO));
         return shadowbox;
     }

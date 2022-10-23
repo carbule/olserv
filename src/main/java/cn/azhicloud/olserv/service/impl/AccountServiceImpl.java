@@ -98,7 +98,7 @@ public class AccountServiceImpl implements AccountService {
         // 为新创建的用户分配 key
         TaskTASK1001BO taskBO = new TaskTASK1001BO();
         taskBO.setAccountId(account.getId());
-        autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.ALLOCATE_ACCOUNT_TO_SHADOWBOXES,
+        autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.ALLOCATE_ACCOUNT_TO_SHADOWBOXES,
                 JSON.toJSONString(taskBO));
         return account;
     }
@@ -130,7 +130,7 @@ public class AccountServiceImpl implements AccountService {
                     // 生成自动任务 TASK3001 生成订阅链接和短链接
                     TaskTASK3001BO taskBO = new TaskTASK3001BO();
                     taskBO.setAccountId(account.getId());
-                    autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.GENERATE_SUBSCRIBE_AND_SHORT_URL,
+                    autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.GENERATE_SUBSCRIBE_AND_SHORT_URL,
                             JSON.toJSONString(taskBO));
                 }
                 continue;
@@ -143,8 +143,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public List<Shadowbox> listShadowboxOwnedByAccount(String id) {
-        Account account = accountRepository.findById(id).orElseThrow(() ->
-                BizException.format("账户不存在"));
+        Account account = Account.of(id);
 
         // 记录账户拉取订阅的时间和访问 IP（可能通过 FZero 服务访问）
         account.setLastAccess(LocalDateTime.now());
@@ -179,7 +178,7 @@ public class AccountServiceImpl implements AccountService {
     protected void autoTaskTASK2003(String accountId) {
         TaskTASK2003BO taskBO = new TaskTASK2003BO();
         taskBO.setAccountId(accountId);
-        autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.SAVE_ACCOUNT_PULL_SUBSCRIBE_LOCATION,
+        autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.SAVE_ACCOUNT_PULL_SUBSCRIBE_LOCATION,
                 JSON.toJSONString(taskBO));
     }
 
@@ -187,7 +186,7 @@ public class AccountServiceImpl implements AccountService {
         TaskTASK2002BO taskBO = new TaskTASK2002BO();
         taskBO.setAccountId(account.getId());
         taskBO.setNodes(boxes.stream().map(Shadowbox::getName).collect(Collectors.toList()));
-        autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.ACCOUNT_PULL_SUBSCRIBE_NOTICE,
+        autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.ACCOUNT_PULL_SUBSCRIBE_NOTICE,
                 JSON.toJSONString(taskBO));
     }
 
@@ -228,7 +227,7 @@ public class AccountServiceImpl implements AccountService {
         TaskTASK1001BO taskBO = new TaskTASK1001BO();
         taskBO.setAccountId(account.getId());
         taskBO.setResetTraffic(true);
-        autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.ALLOCATE_ACCOUNT_TO_SHADOWBOXES,
+        autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.ALLOCATE_ACCOUNT_TO_SHADOWBOXES,
                 JSON.toJSONString(taskBO));
     }
 

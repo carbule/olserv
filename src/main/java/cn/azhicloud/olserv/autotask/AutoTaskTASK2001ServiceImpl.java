@@ -54,7 +54,7 @@ public class AutoTaskTASK2001ServiceImpl implements AutoTaskExecuteService {
         // 创建自动任务 NOTICE1002 通知所有用户拉取最新订阅
         TaskNOTICE1002BO newTaskBO = new TaskNOTICE1002BO();
         newTaskBO.setApiUrl(shadowbox.getApiUrl());
-        autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.NOTICE_ACCOUNT_ALLOCATE_NEW_KEY,
+        autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.NOTICE_ACCOUNT_ALLOCATE_NEW_KEY,
                 JSON.toJSONString(newTaskBO));
     }
 }

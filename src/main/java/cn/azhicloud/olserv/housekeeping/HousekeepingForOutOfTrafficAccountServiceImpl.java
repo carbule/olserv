@@ -23,7 +23,7 @@ public class HousekeepingForOutOfTrafficAccountServiceImpl implements HouseKeepi
 
     @Override
     public void doHousekeeping() {
-        autoTaskBaseService.createAutoTaskAndPublicMQ(
+        autoTaskBaseService.createAutoTaskAndPublishMQ(
                 TaskTypeConst.DO_HOUSEKEEPING_FOR_OUT_OF_TRAFFIC_ACCOUNT, null);
     }
 }

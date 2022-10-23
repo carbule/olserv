@@ -6,6 +6,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
+import cn.azhicloud.infra.base.exception.BizException;
+import cn.azhicloud.infra.base.helper.Application;
+import cn.azhicloud.olserv.repository.AccountRepository;
 import lombok.Data;
 
 /**
@@ -78,4 +81,12 @@ public class Account {
      */
     @Transient
     private Subscribe subscribe;
+
+    public static AccountRepository repository() {
+        return Application.getBean(AccountRepository.class);
+    }
+
+    public static Account of(String id) {
+        return repository().findById(id).orElseThrow(() -> new BizException("账户不存在"));
+    }
 }

@@ -19,7 +19,7 @@ public class HousekeepingForAccessKeysCacheServiceImpl implements HouseKeepingSe
 
     @Override
     public void doHousekeeping() {
-        autoTaskBaseService.createAutoTaskAndPublicMQ(
+        autoTaskBaseService.createAutoTaskAndPublishMQ(
                 TaskTypeConst.CACHE_ACCOUNT_OWNED_KEYS, null);
     }
 }

@@ -94,7 +94,7 @@ public class AutoTaskHKP1002ServiceImpl implements AutoTaskExecuteService {
                 {
                     TaskNOTICE1005BO newTaskBO = new TaskNOTICE1005BO();
                     newTaskBO.setAccountId(account.getId());
-                    autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.NOTICE_ACCOUNT_TRAFFIC_OVERED,
+                    autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.NOTICE_ACCOUNT_TRAFFIC_OVERED,
                             JSON.toJSONString(newTaskBO));
                 }
                 return;
@@ -105,7 +105,7 @@ public class AutoTaskHKP1002ServiceImpl implements AutoTaskExecuteService {
                 {
                     TaskNOTICE1003BO taskBO = new TaskNOTICE1003BO();
                     taskBO.setAccountId(account.getId());
-                    autoTaskBaseService.createAutoTaskAndPublicMQ(TaskTypeConst.NOTICE_ACCOUNT_TRAFFIC_WARNING,
+                    autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.NOTICE_ACCOUNT_TRAFFIC_WARNING,
                             JSON.toJSONString(taskBO));
                 }
             }
