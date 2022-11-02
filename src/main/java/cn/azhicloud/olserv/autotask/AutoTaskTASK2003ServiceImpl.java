@@ -3,8 +3,7 @@ package cn.azhicloud.olserv.autotask;
 import javax.transaction.Transactional;
 
 import cn.azhicloud.infra.base.exception.BizException;
-import cn.azhicloud.infra.base.model.IPSBResponse;
-import cn.azhicloud.infra.base.repository.IPSBRepository;
+import cn.azhicloud.infra.base.model.IPUserAgentInfoResponse;
 import cn.azhicloud.infra.task.service.AutoTaskExecuteService;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK2003BO;
 import cn.azhicloud.olserv.constant.TaskTypeConst;
@@ -27,8 +26,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AutoTaskTASK2003ServiceImpl implements AutoTaskExecuteService {
 
-    private final IPSBRepository ipsbRepository;
-
     private final AccountRepository accountRepository;
 
     @Override
@@ -43,11 +40,8 @@ public class AutoTaskTASK2003ServiceImpl implements AutoTaskExecuteService {
 
         // 如果是内网 IP，无法获取地理位置
         if (!NetUtil.isInnerIP(account.getFromIp())) {
-            IPSBResponse response = ipsbRepository.json(account.getFromIp());
-            // China Unicom | China Jiangsu Nanjing
-            account.setFromLocation(String.join(" ",
-                    response.getOrganization() + " |",
-                    response.getCountry(), response.getRegion(), response.getCity()));
+            account.setFromLocation(IPUserAgentInfoResponse.of(account.getFromIp())
+                    .locationString());
         }
     }
 }
