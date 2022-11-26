@@ -1,4 +1,4 @@
-package cn.azhicloud.olserv.model;
+package cn.azhicloud.olserv.domain.model;
 
 import javax.validation.constraints.NotBlank;
 

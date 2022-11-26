@@ -1,4 +1,4 @@
-package cn.azhicloud.olserv.model.entity;
+package cn.azhicloud.olserv.domain.entity;
 
 import java.net.URI;
 import java.util.Collections;
@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
-import cn.azhicloud.olserv.model.outline.AccessKey;
+import cn.azhicloud.olserv.domain.model.outline.AccessKey;
 import lombok.Data;
 
 /**

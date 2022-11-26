@@ -7,7 +7,7 @@ import cn.azhicloud.infra.task.service.AutoTaskExecuteService;
 import cn.azhicloud.olserv.autotask.bo.TaskNOTICE1004BO;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK1003BO;
 import cn.azhicloud.olserv.constant.TaskTypeConst;
-import cn.azhicloud.olserv.model.entity.Account;
+import cn.azhicloud.olserv.domain.entity.Account;
 import cn.azhicloud.olserv.repository.mapper.AccountMapper;
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;

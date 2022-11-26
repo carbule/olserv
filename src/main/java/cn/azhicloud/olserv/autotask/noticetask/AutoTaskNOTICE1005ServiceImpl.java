@@ -5,7 +5,7 @@ import cn.azhicloud.infra.task.service.AutoTaskExecuteService;
 import cn.azhicloud.olserv.autotask.bo.TaskNOTICE1005BO;
 import cn.azhicloud.olserv.constant.TaskTypeConst;
 import cn.azhicloud.olserv.helper.MailHelperExtra;
-import cn.azhicloud.olserv.model.entity.Account;
+import cn.azhicloud.olserv.domain.entity.Account;
 import cn.azhicloud.olserv.repository.AccountRepository;
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;

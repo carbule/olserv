@@ -1,4 +1,4 @@
-package cn.azhicloud.olserv.model.outline;
+package cn.azhicloud.olserv.domain.model.outline;
 
 import java.net.URI;
 

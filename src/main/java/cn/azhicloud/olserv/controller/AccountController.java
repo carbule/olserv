@@ -2,9 +2,9 @@ package cn.azhicloud.olserv.controller;
 
 import java.util.List;
 
-import cn.azhicloud.olserv.model.CreateAccountRQ;
-import cn.azhicloud.olserv.model.entity.Account;
-import cn.azhicloud.olserv.model.entity.Shadowbox;
+import cn.azhicloud.olserv.domain.model.CreateAccountRQ;
+import cn.azhicloud.olserv.domain.entity.Account;
+import cn.azhicloud.olserv.domain.entity.Shadowbox;
 import cn.azhicloud.olserv.service.AccountService;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;

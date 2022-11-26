@@ -1,6 +1,6 @@
 package cn.azhicloud.olserv.repository;
 
-import cn.azhicloud.olserv.model.entity.Shadowbox;
+import cn.azhicloud.olserv.domain.entity.Shadowbox;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

@@ -2,7 +2,7 @@ package cn.azhicloud.olserv.repository;
 
 import java.util.List;
 
-import cn.azhicloud.olserv.model.entity.Account;
+import cn.azhicloud.olserv.domain.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

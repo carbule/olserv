@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.azhicloud.infra.base.exception.BizException;
-import cn.azhicloud.olserv.model.outline.AccessKey;
-import cn.azhicloud.olserv.model.outline.AccessKeys;
-import cn.azhicloud.olserv.model.outline.BytesTransferred;
-import cn.azhicloud.olserv.model.outline.Server;
+import cn.azhicloud.olserv.domain.model.outline.AccessKey;
+import cn.azhicloud.olserv.domain.model.outline.AccessKeys;
+import cn.azhicloud.olserv.domain.model.outline.BytesTransferred;
+import cn.azhicloud.olserv.domain.model.outline.Server;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;

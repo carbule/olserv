@@ -3,7 +3,7 @@ package cn.azhicloud.olserv.repository.mapper;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import cn.azhicloud.olserv.model.entity.Account;
+import cn.azhicloud.olserv.domain.entity.Account;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 

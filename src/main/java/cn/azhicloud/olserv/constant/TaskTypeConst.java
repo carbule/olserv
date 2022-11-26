@@ -31,11 +31,11 @@ public interface TaskTypeConst {
     String ALLOCATE_SHADOWBOX_TO_ACCOUNTS = "TASK2001";
     String ALLOCATE_SHADOWBOX_TO_ACCOUNTS_DESC = "为所有的 Account 分配 Key";
 
-    String ACCOUNT_PULL_SUBSCRIBE_NOTICE = "TASK2002";
-    String ACCOUNT_PULL_SUBSCRIBE_NOTICE_DESC = "账户获取订阅发送通知";
+    String SAVE_PULL_HISTORY_LOCATION = "TASK2004";
+    String SAVE_PULL_HISTORY_LOCATION_DESC = "获取订阅拉取记录的地理位置";
 
-    String SAVE_ACCOUNT_PULL_SUBSCRIBE_LOCATION = "TASK2003";
-    String SAVE_ACCOUNT_PULL_SUBSCRIBE_LOCATION_DESC = "获取账户获取订阅的地理位置";
+    String PULL_HISTORY_NOTICE = "TASK2005";
+    String PULL_HISTORY_NOTICE_DESC = "订阅拉取记录通知";
 
     // 订阅任务
 

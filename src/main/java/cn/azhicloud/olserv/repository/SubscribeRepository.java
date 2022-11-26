@@ -3,7 +3,7 @@ package cn.azhicloud.olserv.repository;
 import java.util.List;
 import java.util.Set;
 
-import cn.azhicloud.olserv.model.entity.Subscribe;
+import cn.azhicloud.olserv.domain.entity.Subscribe;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

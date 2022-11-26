@@ -1,4 +1,4 @@
-package cn.azhicloud.olserv.model.entity;
+package cn.azhicloud.olserv.domain.entity;
 
 import java.time.LocalDateTime;
 import javax.persistence.*;

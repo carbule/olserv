@@ -2,7 +2,7 @@ package cn.azhicloud.olserv.service;
 
 import java.util.List;
 
-import cn.azhicloud.olserv.model.entity.Shadowbox;
+import cn.azhicloud.olserv.domain.entity.Shadowbox;
 
 /**
  * @author zhouzhifeng

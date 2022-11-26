@@ -3,7 +3,7 @@ package cn.azhicloud.olserv.controller;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
 
-import cn.azhicloud.olserv.model.entity.Shadowbox;
+import cn.azhicloud.olserv.domain.entity.Shadowbox;
 import cn.azhicloud.olserv.service.ShadowboxService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;

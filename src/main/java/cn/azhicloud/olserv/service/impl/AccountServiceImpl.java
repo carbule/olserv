@@ -17,20 +17,16 @@ import javax.servlet.http.HttpServletRequest;
 import cn.azhicloud.infra.base.exception.BizException;
 import cn.azhicloud.infra.base.helper.ExecutorHelper;
 import cn.azhicloud.infra.task.service.AutoTaskBaseService;
-import cn.azhicloud.olserv.autotask.bo.TaskTASK1001BO;
-import cn.azhicloud.olserv.autotask.bo.TaskTASK2002BO;
-import cn.azhicloud.olserv.autotask.bo.TaskTASK2003BO;
-import cn.azhicloud.olserv.autotask.bo.TaskTASK3001BO;
+import cn.azhicloud.olserv.autotask.bo.*;
 import cn.azhicloud.olserv.constant.TaskTypeConst;
-import cn.azhicloud.olserv.model.CreateAccountRQ;
-import cn.azhicloud.olserv.model.entity.Account;
-import cn.azhicloud.olserv.model.entity.Shadowbox;
-import cn.azhicloud.olserv.model.entity.Subscribe;
-import cn.azhicloud.olserv.model.outline.AccessKey;
-import cn.azhicloud.olserv.repository.AccountRepository;
-import cn.azhicloud.olserv.repository.OutlineRepository;
-import cn.azhicloud.olserv.repository.ShadowboxRepository;
-import cn.azhicloud.olserv.repository.SubscribeRepository;
+import cn.azhicloud.olserv.constant.em.NotifyStatusEnum;
+import cn.azhicloud.olserv.domain.entity.Account;
+import cn.azhicloud.olserv.domain.entity.PullHistory;
+import cn.azhicloud.olserv.domain.entity.Shadowbox;
+import cn.azhicloud.olserv.domain.entity.Subscribe;
+import cn.azhicloud.olserv.domain.model.CreateAccountRQ;
+import cn.azhicloud.olserv.domain.model.outline.AccessKey;
+import cn.azhicloud.olserv.repository.*;
 import cn.azhicloud.olserv.service.AccountService;
 import cn.hutool.extra.servlet.ServletUtil;
 import com.alibaba.fastjson.JSON;
@@ -43,6 +39,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
+
 
 /**
  * @author zhouzhifeng
@@ -70,6 +67,8 @@ public class AccountServiceImpl implements AccountService {
     private final SubscribeRepository subscribeRepository;
 
     private final ShadowboxRepository shadowboxRepository;
+
+    private final PullHistoryRepository pullHistoryRepository;
 
     @Override
     @Transactional
@@ -144,17 +143,18 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public List<Shadowbox> listShadowboxOwnedByAccount(String id) {
         Account account = Account.of(id);
-
-        // 记录账户拉取订阅的时间和访问 IP（可能通过 FZero 服务访问）
+        // 记录账户拉取订阅的时间
         account.setLastAccess(LocalDateTime.now());
-        String fromIP = httpServletRequest.getHeader(REQUEST_HEADER_FROM_IP);
-        if (StringUtils.isBlank(fromIP)) {
-            account.setFromIp(ServletUtil.getClientIP(httpServletRequest));
-        } else {
-            account.setFromIp(fromIP);
-        }
-        // 发布自动任务 TASK2003 获取账户拉取订阅时的地理位置
-        autoTaskTASK2003(account.getId());
+
+        // 记录拉取历史
+        PullHistory history = new PullHistory();
+        history.setAccountId(account.getId());
+        history.setAccountUsername(account.getUsername());
+        history.setFromIp(getFromIP());
+        history.setNotifyStatus(NotifyStatusEnum.READY.name());
+        pullHistoryRepository.save(history);
+        // 发布自动任务 TASK2004，记录订阅历史中的地理位置
+        autoTaskTASK2004(history.getId());
 
         List<Shadowbox> boxes = shadowboxRepository.findAll();
         ExecutorHelper.execute(boxes, box -> {
@@ -169,24 +169,23 @@ public class AccountServiceImpl implements AccountService {
                 .filter(shadowbox -> shadowbox.getAccessKeys().size() > 0)
                 .sorted(Comparator.comparing(Shadowbox::getName))
                 .collect(Collectors.toList());
-
-        // 发送通知邮件
-        autoTaskTASK2002(account, boxes);
+        // 实体托管态更新
+        history.setPullContent(JSON.toJSONString(boxes));
         return boxes;
     }
 
-    protected void autoTaskTASK2003(String accountId) {
-        TaskTASK2003BO taskBO = new TaskTASK2003BO();
-        taskBO.setAccountId(accountId);
-        autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.SAVE_ACCOUNT_PULL_SUBSCRIBE_LOCATION,
-                JSON.toJSONString(taskBO));
+    private String getFromIP() {
+        String fromIP = httpServletRequest.getHeader(REQUEST_HEADER_FROM_IP);
+        if (StringUtils.isBlank(fromIP)) {
+            fromIP = ServletUtil.getClientIP(httpServletRequest);
+        }
+        return fromIP;
     }
 
-    protected void autoTaskTASK2002(Account account, List<Shadowbox> boxes) {
-        TaskTASK2002BO taskBO = new TaskTASK2002BO();
-        taskBO.setAccountId(account.getId());
-        taskBO.setNodes(boxes.stream().map(Shadowbox::getName).collect(Collectors.toList()));
-        autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.ACCOUNT_PULL_SUBSCRIBE_NOTICE,
+    protected void autoTaskTASK2004(Long historyId) {
+        TaskTASK2004BO taskBO = new TaskTASK2004BO();
+        taskBO.setHistoryId(historyId);
+        autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.SAVE_PULL_HISTORY_LOCATION,
                 JSON.toJSONString(taskBO));
     }
 
