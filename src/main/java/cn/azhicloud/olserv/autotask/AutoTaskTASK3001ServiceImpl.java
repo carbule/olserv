@@ -4,8 +4,11 @@ import java.text.MessageFormat;
 import java.time.LocalDateTime;
 
 import cn.azhicloud.infra.base.exception.BizException;
+import cn.azhicloud.infra.base.model.entity.ControlParameter;
+import cn.azhicloud.infra.base.repository.ControlParameterRepository;
 import cn.azhicloud.infra.task.service.AutoTaskExecuteService;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK3001BO;
+import cn.azhicloud.olserv.constant.ControlParameters;
 import cn.azhicloud.olserv.constant.TaskTypeConst;
 import cn.azhicloud.olserv.domain.entity.Account;
 import cn.azhicloud.olserv.domain.entity.Subscribe;
@@ -14,7 +17,6 @@ import cn.azhicloud.olserv.repository.SubscribeRepository;
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,12 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AutoTaskTASK3001ServiceImpl implements AutoTaskExecuteService {
 
-    @Value("${template.subscribe-link}")
-    private String subscribeLinkTMPL;
-
     private final AccountRepository accountRepository;
 
     private final SubscribeRepository subscribeRepository;
+
+    private final ControlParameterRepository controlParameterRepository;
 
     @Override
     @Transactional
@@ -48,10 +49,15 @@ public class AutoTaskTASK3001ServiceImpl implements AutoTaskExecuteService {
             throw BizException.format("账户 %s 已经生成订阅", account.getUsername());
         }
 
+        ControlParameter controlParameter = controlParameterRepository.findByParamCodeAndEnabledTrue(ControlParameters.SUBSCRIBE_URL_TEMPLATE);
+        if (controlParameter == null) {
+            throw new BizException("未配置订阅链接模版");
+        }
+
         subscribe = new Subscribe();
         subscribe.setCreatedAt(LocalDateTime.now());
         subscribe.setAccountId(account.getId());
-        subscribe.setSubscribeLink(MessageFormat.format(subscribeLinkTMPL, account.getId()));
+        subscribe.setSubscribeLink(MessageFormat.format(controlParameter.getParamValue(), account.getId()));
 
         subscribeRepository.save(subscribe);
     }

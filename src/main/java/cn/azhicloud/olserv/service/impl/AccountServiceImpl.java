@@ -16,8 +16,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import cn.azhicloud.infra.base.exception.BizException;
 import cn.azhicloud.infra.base.helper.ExecutorHelper;
+import cn.azhicloud.infra.base.model.entity.ControlParameter;
+import cn.azhicloud.infra.base.repository.ControlParameterRepository;
 import cn.azhicloud.infra.task.service.AutoTaskBaseService;
-import cn.azhicloud.olserv.autotask.bo.*;
+import cn.azhicloud.olserv.autotask.bo.TaskTASK1001BO;
+import cn.azhicloud.olserv.autotask.bo.TaskTASK2004BO;
+import cn.azhicloud.olserv.autotask.bo.TaskTASK3001BO;
+import cn.azhicloud.olserv.constant.ControlParameters;
 import cn.azhicloud.olserv.constant.TaskTypeConst;
 import cn.azhicloud.olserv.constant.em.NotifyStatusEnum;
 import cn.azhicloud.olserv.domain.entity.Account;
@@ -35,7 +40,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
@@ -61,14 +65,13 @@ public class AccountServiceImpl implements AccountService {
 
     private final HttpServletRequest httpServletRequest;
 
-    @Value("${template.subscribe-link}")
-    private String accountSubscribeUrlTemplate;
-
     private final SubscribeRepository subscribeRepository;
 
     private final ShadowboxRepository shadowboxRepository;
 
     private final PullHistoryRepository pullHistoryRepository;
+
+    private final ControlParameterRepository controlParameterRepository;
 
     @Override
     @Transactional
@@ -103,7 +106,12 @@ public class AccountServiceImpl implements AccountService {
     }
 
     protected void generateSubscribeAndShortLink(Account account) {
-        String subscribeLink = MessageFormat.format(accountSubscribeUrlTemplate, account.getId());
+        ControlParameter controlParameter = controlParameterRepository.findByParamCodeAndEnabledTrue(ControlParameters.SUBSCRIBE_URL_TEMPLATE);
+        if (controlParameter == null) {
+            throw new BizException("未配置订阅链接模版");
+        }
+
+        String subscribeLink = MessageFormat.format(controlParameter.getParamValue(), account.getId());
         Subscribe sub = new Subscribe();
         sub.setCreatedAt(LocalDateTime.now());
         sub.setAccountId(account.getId());

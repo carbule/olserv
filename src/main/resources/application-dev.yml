@@ -7,5 +7,3 @@ spring:
     broker-url: tcp://101.34.23.55:61617
   mail:
     generate-subject-no: false
-template:
-  subscribe-link: http://127.0.0.1:8080/olserv/account/{0}/access-keys/subscribe
