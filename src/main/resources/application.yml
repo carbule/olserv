@@ -44,3 +44,9 @@ mybatis:
 logging:
   file:
     name: /var/log/olserv.log
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 3000
+        read-timeout: 3000
