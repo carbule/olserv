@@ -7,7 +7,10 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
+import cn.azhicloud.infra.base.exception.BizException;
+import cn.azhicloud.infra.base.helper.Application;
 import cn.azhicloud.olserv.domain.model.outline.AccessKey;
+import cn.azhicloud.olserv.repository.ShadowboxRepository;
 import lombok.Data;
 
 /**
@@ -51,6 +54,11 @@ public class Shadowbox {
     private Integer portForNewAccessKeys;
 
     /**
+     * 是否离线
+     */
+    private Boolean offline;
+
+    /**
      * 该服务器下拥有的 Keys
      */
     @Transient
@@ -64,5 +72,15 @@ public class Shadowbox {
         if (accessKey != null) {
             this.accessKeys = Collections.singletonList(accessKey);
         }
+    }
+
+    public static ShadowboxRepository repository() {
+        return Application.getBean(ShadowboxRepository.class);
+    }
+
+    public static Shadowbox of(String id) {
+        return repository().findById(id)
+                .orElseThrow(() -> BizException.format("%s(%s) 实体不存在",
+                        Shadowbox.class.getSimpleName(), id));
     }
 }

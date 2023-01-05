@@ -18,6 +18,9 @@ public interface TaskTypeConst {
     String CACHE_ACCOUNT_OWNED_KEYS = "HKP1005";
     String CACHE_ACCOUNT_OWNED_KEYS_DESC = "缓存用户拥有的 Key";
 
+    String SERVER_HEALTH_MONITOR = "HKP1006";
+    String SERVER_HEALTH_MONITOR_DESC = "服务器健康检测";
+
     // 服务器任务
 
     String ALLOCATE_ACCOUNT_TO_SHADOWBOXES = "TASK1001";
@@ -25,6 +28,12 @@ public interface TaskTypeConst {
 
     String UNALLOCATE_ACCOUNT_TO_SHADOWBOXES = "TASK1003";
     String UNALLOCATE_ACCOUNT_TO_SHADOWBOXES_DESC = "在所有的 Shadowbox 上取消分配 Key";
+
+    String UPDATE_SHADOWBOX_OFFLINE_STATUS = "TASK1004";
+    String UPDATE_SHADOWBOX_OFFLINE_STATUS_DESC = "更新服务器离线状态";
+
+    String SHADOWBOX_OFFLINE_STRATEGY = "TASK1005";
+    String SHADOWBOX_OFFLINE_STRATEGY_DESC = "服务器离线策略";
 
     // 账户任务
 
