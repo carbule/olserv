@@ -8,11 +8,11 @@ import cn.azhicloud.infra.task.service.TodoTaskBaseService;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK1004BO;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK1005BO;
 import cn.azhicloud.olserv.constant.TaskTypeConst;
-import cn.azhicloud.olserv.domain.entity.ServerErrorOffline;
+import cn.azhicloud.olserv.domain.entity.ServerOffline;
 import cn.azhicloud.olserv.domain.entity.Shadowbox;
 import cn.azhicloud.olserv.helper.OfflineDuration;
-import cn.azhicloud.olserv.repository.ServerErrorOfflineRepository;
 import cn.azhicloud.olserv.repository.ServerErrorTraceRepository;
+import cn.azhicloud.olserv.repository.ServerOfflineRepository;
 import cn.azhicloud.olserv.repository.ShadowboxRepository;
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class AutoTaskTASK1005ServiceImpl implements AutoTaskExecuteService {
 
     private final ShadowboxRepository shadowboxRepository;
     private final ServerErrorTraceRepository serverErrorTraceRepository;
-    private final ServerErrorOfflineRepository serverErrorOfflineRepository;
+    private final ServerOfflineRepository serverOfflineRepository;
     private final TodoTaskBaseService todoTaskBaseService;
 
     /*
@@ -48,12 +48,12 @@ public class AutoTaskTASK1005ServiceImpl implements AutoTaskExecuteService {
         LocalDateTime now = LocalDateTime.now();
         // 如果一小时内错误超过5条，触发离线
         if (serverErrorTraceRepository.countByServerIdAndCreatedAtAfter(
-                box.getServerId(), now.minusHours(1)) > 5) {
+                box.getApiUrl(), now.minusHours(1)) > 5) {
             // 托管态自动更新
             box.setOffline(Boolean.TRUE);
 
             // 获取服务器的离线记录
-            List<ServerErrorOffline> offlineList = serverErrorOfflineRepository
+            List<ServerOffline> offlineList = serverOfflineRepository
                     .findByServerIdOrderByCreatedAtDesc(box.getApiUrl());
 
             OfflineDuration duration;
@@ -61,17 +61,17 @@ public class AutoTaskTASK1005ServiceImpl implements AutoTaskExecuteService {
                 // 根据最新一条离线记录计算时间轮位置
                 duration = new OfflineDuration(
                         offlineList.get(0).getOfflineDurations(),
-                        offlineList.get(0).getDurationTimeunit());
+                        offlineList.get(0).getDurationTimeunit()).nextOfflineDurations();
             } else {
                 duration = new OfflineDuration();
             }
 
             // 保存离线记录
-            ServerErrorOffline offline = new ServerErrorOffline();
+            ServerOffline offline = new ServerOffline();
             offline.setServerId(box.getApiUrl());
             offline.setOfflineDurations(duration.getDurations());
             offline.setDurationTimeunit(duration.getUnit().name());
-            serverErrorOfflineRepository.save(offline);
+            serverOfflineRepository.save(offline);
 
             // 发布待办任务修改服务器为在线状态
             TaskTASK1004BO newTaskBO = new TaskTASK1004BO();

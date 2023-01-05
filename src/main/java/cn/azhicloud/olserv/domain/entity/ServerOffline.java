@@ -15,7 +15,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Data
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class ServerErrorOffline {
+public class ServerOffline {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -3,7 +3,15 @@ spring:
     username: root
     password: p123456
     url: jdbc:mysql://101.34.23.55:13306/olserv?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+#    username: olserv
+#    password: pwd@123
+#    url: jdbc:mysql://101.34.23.55:3307/olserv?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
   activemq:
     broker-url: tcp://101.34.23.55:61617
   mail:
     generate-subject-no: false
+  jpa:
+    show-sql: true
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

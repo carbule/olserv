@@ -2,7 +2,7 @@ package cn.azhicloud.olserv.repository;
 
 import java.util.List;
 
-import cn.azhicloud.olserv.domain.entity.ServerErrorOffline;
+import cn.azhicloud.olserv.domain.entity.ServerOffline;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -10,10 +10,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @version 1.0
  * @since 2023/1/5 15:54
  */
-public interface ServerErrorOfflineRepository extends JpaRepository<ServerErrorOffline, Long> {
+public interface ServerOfflineRepository extends JpaRepository<ServerOffline, Long> {
 
     /**
      * 查询服务器的离线记录
      */
-    List<ServerErrorOffline> findByServerIdOrderByCreatedAtDesc(String serverId);
+    List<ServerOffline> findByServerIdOrderByCreatedAtDesc(String serverId);
 }
