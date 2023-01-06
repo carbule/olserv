@@ -35,7 +35,7 @@ public class AutoTaskHKP1005ServiceImpl implements AutoTaskExecuteService {
     @Override
     public void execute(String taskData) {
         List<Account> accounts = accountRepository.findAll();
-        List<Shadowbox> shadowboxes = shadowboxRepository.findAll();
+        List<Shadowbox> shadowboxes = shadowboxRepository.findByOfflineIsFalse();
 
         if (accounts.isEmpty() || shadowboxes.isEmpty()) {
             return;

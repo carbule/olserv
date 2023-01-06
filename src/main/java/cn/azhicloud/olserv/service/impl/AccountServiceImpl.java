@@ -164,7 +164,7 @@ public class AccountServiceImpl implements AccountService {
         // 发布自动任务 TASK2004，记录订阅历史中的地理位置
         autoTaskTASK2004(history.getId());
 
-        List<Shadowbox> boxes = shadowboxRepository.findAll();
+        List<Shadowbox> boxes = shadowboxRepository.findByOfflineIsFalse();
         ExecutorHelper.execute(boxes, box -> {
             URI uri = URI.create(box.getApiUrl());
             // 如果服务端有变更，托管态实体自动更新
