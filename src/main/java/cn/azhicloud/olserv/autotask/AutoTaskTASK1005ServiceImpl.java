@@ -2,18 +2,21 @@ package cn.azhicloud.olserv.autotask;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import cn.azhicloud.infra.base.helper.TimeWheelHelper;
+import cn.azhicloud.infra.base.model.entity.TimeWheel;
+import cn.azhicloud.infra.task.service.AutoTaskBaseService;
 import cn.azhicloud.infra.task.service.AutoTaskExecuteService;
 import cn.azhicloud.infra.task.service.TodoTaskBaseService;
+import cn.azhicloud.olserv.autotask.bo.TaskANOTICE1001BO;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK1004BO;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK1005BO;
 import cn.azhicloud.olserv.constant.TaskTypeConst;
 import cn.azhicloud.olserv.domain.entity.ServerOffline;
 import cn.azhicloud.olserv.domain.entity.Shadowbox;
-import cn.azhicloud.olserv.helper.OfflineDuration;
 import cn.azhicloud.olserv.repository.ServerErrorTraceRepository;
 import cn.azhicloud.olserv.repository.ServerOfflineRepository;
-import cn.azhicloud.olserv.repository.ShadowboxRepository;
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -29,14 +32,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AutoTaskTASK1005ServiceImpl implements AutoTaskExecuteService {
 
-    private final ShadowboxRepository shadowboxRepository;
     private final ServerErrorTraceRepository serverErrorTraceRepository;
     private final ServerOfflineRepository serverOfflineRepository;
     private final TodoTaskBaseService todoTaskBaseService;
-
-    /*
-    离线时间轮：5分钟、10分钟、30分钟、1小时、2小时、5小时、10小时、1天、2天、永久
-     */
+    private final AutoTaskBaseService autoTaskBaseService;
 
     @Override
     @Transactional
@@ -56,22 +55,25 @@ public class AutoTaskTASK1005ServiceImpl implements AutoTaskExecuteService {
             List<ServerOffline> offlineList = serverOfflineRepository
                     .findByServerIdOrderByCreatedAtDesc(box.getApiUrl());
 
-            OfflineDuration duration;
+            TimeWheel tw;
             if (CollectionUtils.isNotEmpty(offlineList)) {
                 // 根据最新一条离线记录计算时间轮位置
-                duration = new OfflineDuration(
+                tw = TimeWheelHelper.get(
                         offlineList.get(0).getOfflineDurations(),
-                        offlineList.get(0).getDurationTimeunit()).nextOfflineDurations();
+                        offlineList.get(0).getDurationTimeunit());
             } else {
-                duration = new OfflineDuration();
+                tw = TimeWheelHelper.get();
             }
 
             // 保存离线记录
             ServerOffline offline = new ServerOffline();
             offline.setServerId(box.getApiUrl());
-            offline.setOfflineDurations(duration.getDurations());
-            offline.setDurationTimeunit(duration.getUnit().name());
+            offline.setOfflineDurations(tw.getNextTimes());
+            offline.setDurationTimeunit(tw.getNextUnit());
             serverOfflineRepository.save(offline);
+
+            // 发布自动任务 ANOTICE1001 通知运营
+            autoTaskANOTICE1001BO(offline.getId());
 
             // 发布待办任务修改服务器为在线状态
             TaskTASK1004BO newTaskBO = new TaskTASK1004BO();
@@ -80,9 +82,16 @@ public class AutoTaskTASK1005ServiceImpl implements AutoTaskExecuteService {
             todoTaskBaseService.createTodoTaskAndPublishMQ(
                     TaskTypeConst.UPDATE_SHADOWBOX_OFFLINE_STATUS,
                     JSON.toJSONString(newTaskBO),
-                    duration.getDurations(),
-                    duration.getUnit());
+                    tw.getNextTimes(),
+                    TimeUnit.valueOf(tw.getNextUnit()));
         }
+    }
+
+    private void autoTaskANOTICE1001BO(Long offlineId) {
+        TaskANOTICE1001BO taskBO = new TaskANOTICE1001BO();
+        taskBO.setOfflineId(offlineId);
+        autoTaskBaseService.createAutoTaskAndPublishMQ(
+                TaskTypeConst.A_NOTICE_SERVER_PASSIVE_OFFLINE, JSON.toJSONString(taskBO));
     }
 }
 

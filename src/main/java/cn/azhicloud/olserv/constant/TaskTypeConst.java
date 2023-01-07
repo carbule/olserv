@@ -70,4 +70,9 @@ public interface TaskTypeConst {
 
     String NOTICE_ACCOUNT_TRAFFIC_RESET = "NOTICE1006";
     String NOTICE_ACCOUNT_TRAFFIC_RESET_DESC = "通知用户流量已重置";
+
+    // 运营通知任务
+
+    String A_NOTICE_SERVER_PASSIVE_OFFLINE = "ANOTICE1001";
+    String A_NOTICE_SERVER_PASSIVE_OFFLINE_DESC = "通知运营人员服务器已被动离线";
 }

@@ -3,6 +3,9 @@ package cn.azhicloud.olserv.domain.entity;
 import java.time.LocalDateTime;
 import javax.persistence.*;
 
+import cn.azhicloud.infra.base.exception.BizException;
+import cn.azhicloud.infra.base.helper.Application;
+import cn.azhicloud.olserv.repository.ServerOfflineRepository;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -38,4 +41,13 @@ public class ServerOffline {
      * 持续时间单位
      */
     private String durationTimeunit;
+
+    public static ServerOfflineRepository repository() {
+        return Application.getBean(ServerOfflineRepository.class);
+    }
+
+    public static ServerOffline of(Long id) {
+        return repository().findById(id).orElseThrow(() ->
+                BizException.format("%s(%s) 实体不存在", ServerOffline.class.getSimpleName(), id));
+    }
 }
