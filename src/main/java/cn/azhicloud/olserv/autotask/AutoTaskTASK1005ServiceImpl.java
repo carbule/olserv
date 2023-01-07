@@ -2,6 +2,7 @@ package cn.azhicloud.olserv.autotask;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import cn.azhicloud.infra.base.helper.TimeWheelHelper;
@@ -44,10 +45,9 @@ public class AutoTaskTASK1005ServiceImpl implements AutoTaskExecuteService {
 
         Shadowbox box = Shadowbox.of(taskBO.getServerId());
 
-        LocalDateTime now = LocalDateTime.now();
         // 如果一小时内错误超过5条，触发离线
         if (serverErrorTraceRepository.countByServerIdAndCreatedAtAfter(
-                box.getApiUrl(), now.minusHours(1)) > 5) {
+                box.getApiUrl(), LocalDateTime.now().minusHours(1)) > 5) {
             // 托管态自动更新
             box.setOffline(Boolean.TRUE);
 
@@ -58,18 +58,31 @@ public class AutoTaskTASK1005ServiceImpl implements AutoTaskExecuteService {
             TimeWheel tw;
             if (CollectionUtils.isNotEmpty(offlineList)) {
                 // 根据最新一条离线记录计算时间轮位置
-                tw = TimeWheelHelper.get(
-                        offlineList.get(0).getOfflineDurations(),
-                        offlineList.get(0).getDurationTimeunit());
+                ServerOffline latestOffline = offlineList.get(0);
+                // 当前时间扣减 最后离线时长x2
+                LocalDateTime allowedOfflineThreshold = LocalDateTime.now()
+                        .minusMinutes(TimeUnit.valueOf(latestOffline.getDurationTimeunit())
+                                .toMinutes(latestOffline.getOfflineDurations()) * 2);
+                // 如果扣减后的时间之后依旧有离线记录，则根据时间轮获取下一次的离线时间
+                Optional<ServerOffline> optional = offlineList.stream().filter(e ->
+                                e.getCreatedAt().isAfter(allowedOfflineThreshold))
+                        .findAny();
+                if (optional.isPresent()) {
+                    tw = TimeWheelHelper.next(
+                            latestOffline.getOfflineDurations(),
+                            latestOffline.getDurationTimeunit());
+                } else {
+                    tw = TimeWheelHelper.next();
+                }
             } else {
-                tw = TimeWheelHelper.get();
+                tw = TimeWheelHelper.next();
             }
 
             // 保存离线记录
             ServerOffline offline = new ServerOffline();
             offline.setServerId(box.getApiUrl());
-            offline.setOfflineDurations(tw.getNextTimes());
-            offline.setDurationTimeunit(tw.getNextUnit());
+            offline.setOfflineDurations(tw.getTimes());
+            offline.setDurationTimeunit(tw.getUnit());
             serverOfflineRepository.save(offline);
 
             // 发布自动任务 ANOTICE1001 通知运营
@@ -82,8 +95,8 @@ public class AutoTaskTASK1005ServiceImpl implements AutoTaskExecuteService {
             todoTaskBaseService.createTodoTaskAndPublishMQ(
                     TaskTypeConst.UPDATE_SHADOWBOX_OFFLINE_STATUS,
                     JSON.toJSONString(newTaskBO),
-                    tw.getNextTimes(),
-                    TimeUnit.valueOf(tw.getNextUnit()));
+                    offline.getOfflineDurations(),
+                    TimeUnit.valueOf(offline.getDurationTimeunit()));
         }
     }
 
