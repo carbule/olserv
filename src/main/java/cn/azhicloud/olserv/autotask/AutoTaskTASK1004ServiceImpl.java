@@ -1,5 +1,8 @@
 package cn.azhicloud.olserv.autotask;
 
+import java.util.Optional;
+
+import cn.azhicloud.infra.base.exception.BizException;
 import cn.azhicloud.infra.task.service.AutoTaskExecuteService;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK1004BO;
 import cn.azhicloud.olserv.constant.TaskTypeConst;
@@ -26,8 +29,17 @@ public class AutoTaskTASK1004ServiceImpl implements AutoTaskExecuteService {
     public void execute(String taskData) {
         TaskTASK1004BO taskBO = JSON.parseObject(taskData, TaskTASK1004BO.class);
 
-        Shadowbox box = Shadowbox.of(taskBO.getServerId());
-        box.setOffline(taskBO.getOffline());
-        shadowboxRepository.save(box);
+        Optional<Shadowbox> optional = shadowboxRepository.findById(taskBO.getServerId());
+
+        if (optional.isPresent()) {
+            optional.get().setOffline(taskBO.getOffline());
+            shadowboxRepository.save(optional.get());
+            return;
+        }
+
+        // 如果是 离线->在线，可以允许记录不存在的情况，因为可能人工已经主动下线
+        if (Boolean.TRUE.equals(taskBO.getOffline())) {
+            throw BizException.format("服务器 %s 不存在", taskBO.getServerId());
+        }
     }
 }
