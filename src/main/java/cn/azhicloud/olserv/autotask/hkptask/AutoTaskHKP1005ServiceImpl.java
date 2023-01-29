@@ -3,7 +3,9 @@ package cn.azhicloud.olserv.autotask.hkptask;
 import java.util.List;
 
 import cn.azhicloud.infra.base.helper.ExecutorHelper;
+import cn.azhicloud.infra.task.service.AutoTaskBaseService;
 import cn.azhicloud.infra.task.service.AutoTaskExecuteService;
+import cn.azhicloud.olserv.audit.AuditTaskTypeConst;
 import cn.azhicloud.olserv.constant.TaskTypeConst;
 import cn.azhicloud.olserv.domain.entity.Account;
 import cn.azhicloud.olserv.domain.entity.Shadowbox;
@@ -30,6 +32,8 @@ public class AutoTaskHKP1005ServiceImpl implements AutoTaskExecuteService {
 
     private final AccountRepository accountRepository;
 
+    private final AutoTaskBaseService autoTaskBaseService;
+
     private static final int RETRY_TIME = 3;
 
     @Override
@@ -54,5 +58,9 @@ public class AutoTaskHKP1005ServiceImpl implements AutoTaskExecuteService {
                     outlineRepository.getAccessKey(shadowbox.URI(), account.getUsername());
                 }, RETRY_TIME,
                 ex -> log.error("缓存 Key 信息失败：{}", ex.getMessage()));
+
+        // 发布审计相关任务
+        autoTaskBaseService.createAutoTaskAndPublishMQ(
+                AuditTaskTypeConst.PERSISTENT_ACCOUNT_OWNED_KEYS, null);
     }
 }
