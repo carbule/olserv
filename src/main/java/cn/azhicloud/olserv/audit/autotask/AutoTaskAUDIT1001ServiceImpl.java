@@ -55,7 +55,7 @@ public class AutoTaskAUDIT1001ServiceImpl implements AutoTaskExecuteService {
                         key.setKeyId(k.getId());
                         keys.add(key);
                     });
-        });
+        }, ex -> log.error("获取服务器信息失败：{}", ex.getMessage()));
         accessKeyRepository.saveAll(keys);
     }
 }
