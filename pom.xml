@@ -5,7 +5,7 @@
     <parent>
         <groupId>cn.azhicloud</groupId>
         <artifactId>infra-parent</artifactId>
-        <version>1.2-SNAPSHOT</version>
+        <version>1.3-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -21,22 +21,22 @@
         <dependency>
             <groupId>cn.azhicloud</groupId>
             <artifactId>infra-base</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>cn.azhicloud</groupId>
             <artifactId>infra-housekeeping</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>cn.azhicloud</groupId>
             <artifactId>infra-task</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>cn.azhicloud</groupId>
             <artifactId>infra-starter</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.3-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
