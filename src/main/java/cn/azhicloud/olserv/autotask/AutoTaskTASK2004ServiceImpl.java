@@ -43,8 +43,9 @@ public class AutoTaskTASK2004ServiceImpl implements AutoTaskExecuteService {
             throw new BizException("访问者 IP 地址为空");
         }
 
+        // 忽略 ipv6
         // 如果是内网 IP，无法获取地理位置
-        if (!NetUtil.isInnerIP(history.getFromIp())) {
+        if (history.getFromIp().length() <= 15 && !NetUtil.isInnerIP(history.getFromIp())) {
             history.setFromLocation(IPUserAgentInfoResponse.of(history.getFromIp())
                     .locationString());
         }

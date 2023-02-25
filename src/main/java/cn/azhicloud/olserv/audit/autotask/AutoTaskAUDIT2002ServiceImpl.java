@@ -28,8 +28,9 @@ public class AutoTaskAUDIT2002ServiceImpl implements AutoTaskExecuteService {
         TaskAUDIT2002BO taskBO = JSON.parseObject(taskData, TaskAUDIT2002BO.class);
 
         AuditLog auditLog = AuditLog.of(taskBO.getAuditLogId());
+        // 忽略 ipv6
         // 如果是内网 IP，无法获取地理位置
-        if (!NetUtil.isInnerIP(auditLog.getClientAddr())) {
+        if (auditLog.getClientAddr().length() <= 15 && !NetUtil.isInnerIP(auditLog.getClientAddr())) {
             auditLog.setClientLocation(IPUserAgentInfoResponse.of(auditLog.getClientAddr())
                     .locationString());
         }
