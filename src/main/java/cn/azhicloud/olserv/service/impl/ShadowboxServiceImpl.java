@@ -49,6 +49,7 @@ public class ShadowboxServiceImpl implements ShadowboxService {
         shadowbox.setApiUrl(apiUrl);
         BeanUtils.copyProperties(server, shadowbox);
         shadowbox.setOffline(Boolean.FALSE);
+        shadowbox.setForOutlineClient(Boolean.FALSE);
         shadowboxRepository.save(shadowbox);
 
         TaskTASK2001BO taskBO = new TaskTASK2001BO();

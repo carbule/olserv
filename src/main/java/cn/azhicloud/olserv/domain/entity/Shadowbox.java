@@ -59,19 +59,33 @@ public class Shadowbox {
     private Boolean offline;
 
     /**
+     * 为 outline-client 提供动态链接
+     */
+    private Boolean forOutlineClient;
+
+
+    // 非数据库字段
+
+    /**
      * 该服务器下拥有的 Keys
      */
     @Transient
     private List<AccessKey> accessKeys = Collections.emptyList();
 
-    public URI URI() {
-        return URI.create(apiUrl);
-    }
+
+    // getter / setter
 
     public void setAccessKey(AccessKey accessKey) {
         if (accessKey != null) {
             this.accessKeys = Collections.singletonList(accessKey);
         }
+    }
+
+
+    // 扩展方法
+
+    public URI URI() {
+        return URI.create(apiUrl);
     }
 
     public static ShadowboxRepository repository() {

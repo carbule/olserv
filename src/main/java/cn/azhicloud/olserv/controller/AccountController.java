@@ -2,9 +2,9 @@ package cn.azhicloud.olserv.controller;
 
 import java.util.List;
 
-import cn.azhicloud.olserv.domain.model.CreateAccountRQ;
 import cn.azhicloud.olserv.domain.entity.Account;
 import cn.azhicloud.olserv.domain.entity.Shadowbox;
+import cn.azhicloud.olserv.domain.model.CreateAccountRQ;
 import cn.azhicloud.olserv.service.AccountService;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -48,5 +48,11 @@ public class AccountController {
     @GetMapping("/{accountId}/access-keys/subscribe")
     public String getAccessKeysSubscribe(@PathVariable String accountId) {
         return accountService.getAccessKeysSubscribe(accountId);
+    }
+
+    @GetMapping("/{accountId}/ssconf")
+    @CrossOrigin
+    public String getAccessKeyForOutlineClientUseSSConf(@PathVariable String accountId) {
+        return accountService.getAccessKeyForOutlineClientUseSSConf(accountId);
     }
 }

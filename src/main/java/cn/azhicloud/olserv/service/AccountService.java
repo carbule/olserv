@@ -50,4 +50,12 @@ public interface AccountService {
      * @param username 用户名
      */
     void trafficReset(String username);
+
+    /**
+     * 提供 outline-client 需要的动态密钥
+     *
+     * @param accountId 账户 ID
+     * @return 密钥
+     */
+    String getAccessKeyForOutlineClientUseSSConf(String accountId);
 }

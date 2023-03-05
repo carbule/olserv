@@ -6,10 +6,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
@@ -236,6 +233,20 @@ public class AccountServiceImpl implements AccountService {
         taskBO.setResetTraffic(true);
         autoTaskBaseService.createAutoTaskAndPublishMQ(TaskTypeConst.ALLOCATE_ACCOUNT_TO_SHADOWBOXES,
                 JSON.toJSONString(taskBO));
+    }
+
+    @Override
+    @Transactional
+    public String getAccessKeyForOutlineClientUseSSConf(String accountId) {
+        List<Shadowbox> shadowboxes = listShadowboxOwnedByAccount(accountId);
+        Optional<Shadowbox> any = shadowboxes.stream().filter(e -> Boolean.TRUE.equals(e.getForOutlineClient()))
+                .findAny();
+        if (!any.isPresent()) {
+            throw new BizException("未配置为 outline-client 提供动态链接的服务器");
+        }
+
+        List<AccessKey> keys = any.get().getAccessKeys();
+        return keys.isEmpty() ? "" : keys.get(0).getAccessUrl();
     }
 
 }
