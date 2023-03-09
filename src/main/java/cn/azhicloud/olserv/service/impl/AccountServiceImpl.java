@@ -107,12 +107,17 @@ public class AccountServiceImpl implements AccountService {
         if (controlParameter == null) {
             throw new BizException("未配置订阅链接模版");
         }
+        ControlParameter controlParameter1 = controlParameterRepository.findByParamCodeAndEnabledTrue(ControlParameters.SSCONF_URL_TEMPLATE);
+        if (controlParameter1 == null) {
+            throw new BizException("未配置 outline-client 动态密钥模版");
+        }
 
         String subscribeLink = MessageFormat.format(controlParameter.getParamValue(), account.getId());
         Subscribe sub = new Subscribe();
         sub.setCreatedAt(LocalDateTime.now());
         sub.setAccountId(account.getId());
         sub.setSubscribeLink(subscribeLink);
+        sub.setSsconfLink(MessageFormat.format(controlParameter1.getParamValue(), account.getId()));
         subscribeRepository.save(sub);
 
         account.setSubscribe(sub);

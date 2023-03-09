@@ -53,11 +53,16 @@ public class AutoTaskTASK3001ServiceImpl implements AutoTaskExecuteService {
         if (controlParameter == null) {
             throw new BizException("未配置订阅链接模版");
         }
+        ControlParameter controlParameter1 = controlParameterRepository.findByParamCodeAndEnabledTrue(ControlParameters.SSCONF_URL_TEMPLATE);
+        if (controlParameter1 == null) {
+            throw new BizException("未配置 outline-client 动态密钥模版");
+        }
 
         subscribe = new Subscribe();
         subscribe.setCreatedAt(LocalDateTime.now());
         subscribe.setAccountId(account.getId());
         subscribe.setSubscribeLink(MessageFormat.format(controlParameter.getParamValue(), account.getId()));
+        subscribe.setSsconfLink(MessageFormat.format(controlParameter1.getParamValue(), account.getId()));
 
         subscribeRepository.save(subscribe);
     }

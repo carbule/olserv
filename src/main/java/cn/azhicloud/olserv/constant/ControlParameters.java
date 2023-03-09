@@ -13,4 +13,9 @@ public interface ControlParameters {
      * 订阅链接模版
      */
     String SUBSCRIBE_URL_TEMPLATE = "SUBSCRIBE_URL_TEMPLATE";
+
+    /**
+     * outline-client 动态密钥模版
+     */
+    String SSCONF_URL_TEMPLATE = "SSCONF_URL_TEMPLATE";
 }

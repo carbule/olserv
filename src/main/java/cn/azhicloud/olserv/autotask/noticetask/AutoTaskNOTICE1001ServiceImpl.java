@@ -45,7 +45,9 @@ public class AutoTaskNOTICE1001ServiceImpl implements AutoTaskExecuteService {
                 throw BizException.format("账户 %s 没配置邮箱", account.getUsername());
             }
             mailHelperExtra.sendSubscribeNotice(account.getEmail(), "ACCOUNT CREATED",
-                    String.format("账户已创建，订阅链接：%s", subscribe.getSubscribeLink()));
+                    String.format("账户已创建，订阅链接：%s", subscribe.getSubscribeLink())
+                            + System.lineSeparator()
+                            + String.format("outline-client 动态密钥链接：%s", subscribe.getSubscribeLink()));
         }
     }
 }

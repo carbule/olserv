@@ -31,4 +31,7 @@ public class Subscribe {
      */
     @Column(nullable = false, unique = true)
     private String subscribeLink;
+
+    @Column(nullable = false, unique = true)
+    private String ssconfLink;
 }
