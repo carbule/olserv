@@ -11,7 +11,7 @@ spring:
   mail:
     generate-subject-no: false
   jpa:
-#    show-sql: true
+    show-sql: true
 mybatis:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

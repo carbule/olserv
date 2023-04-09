@@ -1,6 +1,6 @@
 package cn.azhicloud.olserv.audit.autotask;
 
-import cn.azhicloud.infra.base.model.IPUserAgentInfoResponse;
+import cn.azhicloud.infra.base.model.BaiduIPResponse;
 import cn.azhicloud.infra.task.service.AutoTaskExecuteService;
 import cn.azhicloud.olserv.audit.AuditTaskTypeConst;
 import cn.azhicloud.olserv.audit.autotask.bo.TaskAUDIT2002BO;
@@ -31,7 +31,7 @@ public class AutoTaskAUDIT2002ServiceImpl implements AutoTaskExecuteService {
         // 忽略 ipv6
         // 如果是内网 IP，无法获取地理位置
         if (auditLog.getClientAddr().length() <= 15 && !NetUtil.isInnerIP(auditLog.getClientAddr())) {
-            auditLog.setClientLocation(IPUserAgentInfoResponse.of(auditLog.getClientAddr())
+            auditLog.setClientLocation(BaiduIPResponse.of(auditLog.getClientAddr())
                     .locationString());
         }
     }

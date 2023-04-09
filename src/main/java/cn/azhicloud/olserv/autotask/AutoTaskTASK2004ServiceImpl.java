@@ -3,7 +3,7 @@ package cn.azhicloud.olserv.autotask;
 import javax.transaction.Transactional;
 
 import cn.azhicloud.infra.base.exception.BizException;
-import cn.azhicloud.infra.base.model.IPUserAgentInfoResponse;
+import cn.azhicloud.infra.base.model.BaiduIPResponse;
 import cn.azhicloud.infra.task.service.AutoTaskBaseService;
 import cn.azhicloud.infra.task.service.AutoTaskExecuteService;
 import cn.azhicloud.olserv.autotask.bo.TaskTASK2004BO;
@@ -46,7 +46,7 @@ public class AutoTaskTASK2004ServiceImpl implements AutoTaskExecuteService {
         // 忽略 ipv6
         // 如果是内网 IP，无法获取地理位置
         if (history.getFromIp().length() <= 15 && !NetUtil.isInnerIP(history.getFromIp())) {
-            history.setFromLocation(IPUserAgentInfoResponse.of(history.getFromIp())
+            history.setFromLocation(BaiduIPResponse.of(history.getFromIp())
                     .locationString());
         }
 
