@@ -48,4 +48,17 @@ public class AccessKey {
      * 管理 url
      */
     private URI apiUri;
+
+    /**
+     * ss 加盐
+     *
+     * @param salt 盐值
+     * @return 加盐处理后的 ss url
+     */
+    public String saltEncrypt(String salt) {
+        if (salt == null) {
+            return accessUrl;
+        }
+        return accessUrl + "&prefix=" + salt;
+    }
 }

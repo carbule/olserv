@@ -18,4 +18,9 @@ public interface ControlParameters {
      * outline-client 动态密钥模版
      */
     String SSCONF_URL_TEMPLATE = "SSCONF_URL_TEMPLATE";
+
+    /**
+     * ss 自定义盐前缀
+     */
+    String SS_SALT_PREFIX = "SS_SALT_PREFIX";
 }

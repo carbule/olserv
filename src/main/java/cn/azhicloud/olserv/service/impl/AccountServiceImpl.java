@@ -251,7 +251,10 @@ public class AccountServiceImpl implements AccountService {
         }
 
         List<AccessKey> keys = any.get().getAccessKeys();
-        return keys.isEmpty() ? "" : keys.get(0).getAccessUrl();
+        if (keys.isEmpty())
+            return "";
+        ControlParameter saltPrefix = controlParameterRepository.findByParamCodeAndEnabledTrue(ControlParameters.SS_SALT_PREFIX);
+        return keys.get(0).saltEncrypt(saltPrefix == null ? null : saltPrefix.getParamValue());
     }
 
 }
